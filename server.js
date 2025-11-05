@@ -29,7 +29,7 @@ app.get('/', (req, res) => {
     
     .container { text-align:center; padding:40px; position:relative; z-index:10; }
     h1 { font-size:48px; margin-bottom:30px; background:linear-gradient(90deg,#fff 20%,#ff0066 40%,#00ff99 60%,#3399ff 80%,#fff 100%); background-size:200% auto; -webkit-background-clip:text; -webkit-text-fill-color:transparent; animation:flow 4s linear infinite; }
-    body.light-mode h1 { background:linear-gradient(90deg,#000 20%,#ff0066 40%,#00ff99 60%,#3399ff 80%,#000 100%); }
+    body.light-mode h1 { background:linear-gradient(90deg,#666 10%,#ff0066 30%,#00ff99 50%,#3399ff 70%,#666 90%); }
     @keyframes flow { to { background-position:200% center; } }
     
     input { width:400px; max-width:90%; padding:15px; margin:20px 0; border-radius:12px; border:1px solid rgba(255,255,255,0.2); background:rgba(255,255,255,0.05); color:#fff; font-size:16px; text-align:center; cursor:text; }
@@ -206,4 +206,11 @@ app.use('/proxy', (req, res, next) => {
 
 app.listen(PORT, () => {
   console.log(`🌈 Rainbow Proxy running on port ${PORT}`);
+  
+  // Keep server awake by pinging itself every 10 minutes
+  setInterval(() => {
+    fetch(`https://proxy-41so.onrender.com`)
+      .then(() => console.log('⏰ Keep-alive ping sent'))
+      .catch(err => console.log('Ping failed:', err.message));
+  }, 10 * 60 * 1000); // 10 minutes
 });
