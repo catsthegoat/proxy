@@ -137,9 +137,9 @@ app.get('/', (req, res) => {
     function animate() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       
-      // Smooth cursor follow
-      cursorX += (mouseX - cursorX) * 0.15;
-      cursorY += (mouseY - cursorY) * 0.15;
+      // Smooth cursor follow - increased from 0.15 to 0.3 for closer following
+      cursorX += (mouseX - cursorX) * 0.3;
+      cursorY += (mouseY - cursorY) * 0.3;
       cursor.style.left = cursorX + 'px';
       cursor.style.top = cursorY + 'px';
       
