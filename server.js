@@ -22,26 +22,112 @@ app.get('/', (req, res) => {
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
-    body { font-family:'Inter',sans-serif; background:#000; color:#fff; min-height:100vh; display:flex; align-items:center; justify-content:center; }
-    .container { text-align:center; padding:40px; }
+    body { font-family:'Inter',sans-serif; background:#000; color:#fff; min-height:100vh; display:flex; align-items:center; justify-content:center; overflow:hidden; cursor:none; }
+    
+    #trail { position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:1; }
+    
+    .container { text-align:center; padding:40px; position:relative; z-index:10; }
     h1 { font-size:48px; margin-bottom:30px; background:linear-gradient(90deg,#fff 20%,#ff0066 40%,#00ff99 60%,#3399ff 80%,#fff 100%); background-size:200% auto; -webkit-background-clip:text; -webkit-text-fill-color:transparent; animation:flow 4s linear infinite; }
     @keyframes flow { to { background-position:200% center; } }
-    input { width:400px; max-width:90%; padding:15px; margin:20px 0; border-radius:12px; border:1px solid rgba(255,255,255,0.2); background:rgba(255,255,255,0.05); color:#fff; font-size:16px; text-align:center; }
+    input { width:400px; max-width:90%; padding:15px; margin:20px 0; border-radius:12px; border:1px solid rgba(255,255,255,0.2); background:rgba(255,255,255,0.05); color:#fff; font-size:16px; text-align:center; cursor:text; }
     input::placeholder { color:rgba(255,255,255,0.4); }
     button { padding:15px 40px; background:#fff; color:#000; border:none; border-radius:12px; font-weight:700; cursor:pointer; font-size:14px; text-transform:uppercase; transition:0.3s; }
     button:hover { transform:translateY(-2px); box-shadow:0 10px 30px rgba(255,255,255,0.3); }
     .status { margin-top:20px; font-size:14px; color:rgba(255,255,255,0.6); }
+    
+    .secret { 
+      margin-top:10px; font-size:12px; color:#000; background:#000; padding:5px 15px; border-radius:8px; 
+      transition:all 0.5s ease; cursor:pointer; display:inline-block; user-select:none;
+    }
+    .secret:hover { color:rgba(255,255,255,0.4); background:rgba(255,255,255,0.05); }
+    
+    .cursor { position:fixed; width:20px; height:20px; border:2px solid rgba(255,255,255,0.6); border-radius:50%; pointer-events:none; z-index:9999; transition:0.1s; transform:translate(-50%,-50%); }
   </style>
 </head>
 <body>
+  <canvas id="trail"></canvas>
+  <div class="cursor"></div>
   <div class="container">
     <h1>RAINBOW PROXY</h1>
     <input id="url" placeholder="enter url (e.g. example.com)">
     <br>
     <button onclick="go()">GO</button>
     <div class="status">Server running ✓</div>
+    <div class="secret">made by emma</div>
   </div>
   <script>
+    // Mouse trail effect
+    const canvas = document.getElementById('trail');
+    const ctx = canvas.getContext('2d');
+    const cursor = document.querySelector('.cursor');
+    
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    
+    let particles = [];
+    let mouseX = 0;
+    let mouseY = 0;
+    
+    class Particle {
+      constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.size = Math.random() * 3 + 1;
+        this.speedX = Math.random() * 2 - 1;
+        this.speedY = Math.random() * 2 - 1;
+        this.life = 1;
+      }
+      
+      update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        this.life -= 0.02;
+        if (this.size > 0.1) this.size -= 0.05;
+      }
+      
+      draw() {
+        ctx.fillStyle = 'rgba(255, 255, 255, ' + this.life + ')';
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+    
+    document.addEventListener('mousemove', (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+      
+      cursor.style.left = mouseX + 'px';
+      cursor.style.top = mouseY + 'px';
+      
+      for (let i = 0; i < 3; i++) {
+        particles.push(new Particle(mouseX, mouseY));
+      }
+    });
+    
+    function animate() {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      for (let i = particles.length - 1; i >= 0; i--) {
+        particles[i].update();
+        particles[i].draw();
+        
+        if (particles[i].life <= 0) {
+          particles.splice(i, 1);
+        }
+      }
+      
+      requestAnimationFrame(animate);
+    }
+    
+    animate();
+    
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+    
     function go() {
       let url = document.getElementById('url').value.trim();
       if (!url) return;
