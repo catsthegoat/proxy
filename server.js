@@ -24,6 +24,7 @@ app.get('/', (req, res) => {
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:'Inter',sans-serif;background:#000;color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:none;transition:background 0.3s,color 0.3s;}
 body.light-mode{background:#fff;color:#000;}
+body.proxied{overflow:auto;display:block;cursor:auto;}
 #trail{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9998;}
 .container{text-align:center;padding:40px;position:relative;z-index:10;}
 
@@ -37,7 +38,7 @@ body.light-mode h1{background:linear-gradient(90deg,#000 0%,#ff0066 25%,#00cc88 
   content: "";
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
-  border-radius: 10px;
+  border-radius: 8px;
   border: 1px solid rgba(255,255,255,0.4);
   background: rgba(255,255,255,0.03);
   backdrop-filter: blur(15px);
@@ -89,12 +90,17 @@ body.light-mode .cursor{border-color:rgba(0,0,0,0.8);}
 body.light-mode .mode-toggle{background:rgba(0,0,0,0.1);border:1px solid rgba(0,0,0,0.2);}
 .mode-toggle:hover{background:rgba(255,255,255,0.2);transform:scale(1.05);}
 body.light-mode .mode-toggle:hover{background:rgba(0,0,0,0.2);}
+
+#proxyFrame{display:none;position:fixed;top:0;left:0;width:100%;height:100%;border:none;background:#fff;z-index:1;}
+.back-btn{display:none;position:fixed;top:20px;left:20px;padding:10px 20px;background:rgba(255,255,255,0.9);color:#000;border:none;border-radius:10px;font-weight:700;cursor:pointer;z-index:102;transition:0.3s;}
+.back-btn:hover{transform:scale(1.05);background:#fff;}
 </style>
 </head>
 <body>
 <canvas id="trail"></canvas>
 <div class="cursor"></div>
 <div class="mode-toggle" onclick="toggleMode()">⚫ / ⚪</div>
+<button class="back-btn" onclick="goBack()">← BACK</button>
 <div class="container">
 <h1>RAINBOW PROXY</h1>
 <div class="input-wrapper">
@@ -105,6 +111,7 @@ body.light-mode .mode-toggle:hover{background:rgba(0,0,0,0.2);}
 <div class="status">Server running ✓</div>
 <div class="secret">made by emma</div>
 </div>
+<iframe id="proxyFrame"></iframe>
 <script>
 let lightMode=false;
 function toggleMode(){lightMode=!lightMode;document.body.classList.toggle('light-mode',lightMode);}
@@ -119,7 +126,34 @@ function animate(){ctx.clearRect(0,0,canvas.width,canvas.height);cursorX+=(mouse
 animate();
 window.addEventListener('resize',()=>{canvas.width=window.innerWidth;canvas.height=window.innerHeight;});
 
-function go(){let url=document.getElementById('url').value.trim();if(!url)return;if(!url.match(/^https?:\\/\\//))url='https://'+url;window.location.href='/proxy?url='+encodeURIComponent(url);}
+function go(){
+  let url=document.getElementById('url').value.trim();
+  if(!url)return;
+  if(!url.match(/^https?:\\/\\//))url='https://'+url;
+  
+  document.querySelector('.container').style.display='none';
+  document.querySelector('.back-btn').style.display='block';
+  document.querySelector('#trail').style.display='none';
+  document.querySelector('.cursor').style.display='none';
+  document.querySelector('.mode-toggle').style.display='none';
+  document.body.classList.add('proxied');
+  
+  const frame=document.getElementById('proxyFrame');
+  frame.style.display='block';
+  frame.src='/proxy?url='+encodeURIComponent(url);
+}
+
+function goBack(){
+  document.querySelector('.container').style.display='block';
+  document.querySelector('.back-btn').style.display='none';
+  document.querySelector('#trail').style.display='block';
+  document.querySelector('.cursor').style.display='block';
+  document.querySelector('.mode-toggle').style.display='block';
+  document.body.classList.remove('proxied');
+  document.getElementById('proxyFrame').style.display='none';
+  document.getElementById('url').value='';
+}
+
 document.getElementById('url').addEventListener('keypress',e=>e.key==='Enter'&&go());
 </script>
 </body>
@@ -127,27 +161,39 @@ document.getElementById('url').addEventListener('keypress',e=>e.key==='Enter'&&g
 });
 
 // Proxy endpoint
-app.use('/proxy', (req,res,next)=>{
-  const targetUrl=req.query.url;
-  if(!targetUrl) return res.status(400).send('Missing URL');
-
-  let url;
-  try { url = new URL(targetUrl); } 
-  catch { return res.status(400).send('Invalid URL'); }
-
-  createProxyMiddleware({
-    target: url.origin,
-    changeOrigin: true,
-    pathRewrite: ()=>url.pathname + url.search,
-    onProxyRes: proxyRes => {
-      delete proxyRes.headers['x-frame-options'];
-      delete proxyRes.headers['content-security-policy'];
-      delete proxyRes.headers['x-content-type-options'];
-      delete proxyRes.headers['strict-transport-security'];
-    },
-    onError: (err, req, res) => res.status(500).send('Proxy error: ' + err.message)
-  })(req, res, next);
-});
+app.use('/proxy', createProxyMiddleware({
+  router: (req) => {
+    const targetUrl = req.query.url;
+    if (!targetUrl) return 'http://localhost';
+    try {
+      const url = new URL(targetUrl);
+      return url.origin;
+    } catch {
+      return 'http://localhost';
+    }
+  },
+  changeOrigin: true,
+  pathRewrite: (path, req) => {
+    const targetUrl = req.query.url;
+    if (!targetUrl) return '/';
+    try {
+      const url = new URL(targetUrl);
+      return url.pathname + url.search;
+    } catch {
+      return '/';
+    }
+  },
+  onProxyRes: (proxyRes) => {
+    delete proxyRes.headers['x-frame-options'];
+    delete proxyRes.headers['content-security-policy'];
+    delete proxyRes.headers['x-content-type-options'];
+    delete proxyRes.headers['strict-transport-security'];
+    proxyRes.headers['Access-Control-Allow-Origin'] = '*';
+  },
+  onError: (err, req, res) => {
+    res.status(500).send('Proxy error: ' + err.message);
+  }
+}));
 
 // Start server
 app.listen(PORT, () => {
