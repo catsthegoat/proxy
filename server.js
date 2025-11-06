@@ -53,15 +53,15 @@ body.light-mode .input-wrapper::before {
 
 .input-wrapper input {
   position: relative;
-  width: 280px;
+  width: 260px;
   max-width: 90%;
-  padding: 12px 18px;
+  padding: 10px 16px;
   margin: 20px 0;
   border-radius: 10px;
   border: none;
   background: transparent;
   color: #fff;
-  font-size: 15px;
+  font-size: 14px;
   text-align: center;
   z-index: 1;
   outline: none;
