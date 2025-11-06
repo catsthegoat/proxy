@@ -36,17 +36,38 @@ body.light-mode h1{background:linear-gradient(90deg,#000 0%,#ff0066 25%,#00cc88 
 .input-wrapper::before {
   content: "";
   position: absolute;
-  top: -4px; left: -4px; right: -4px; bottom: -4px;
-  border-radius: 16px;
-  background: linear-gradient(45deg, rgba(255,255,255,0.4), rgba(0,255,255,0.4), rgba(255,0,255,0.4));
-  filter: blur(8px);
-  opacity: 0.7;
+  top: -2px; left: -2px; right: -2px; bottom: -2px;
+  border-radius: 14px;
+  background: linear-gradient(90deg, 
+    rgba(255,255,255,0.8), 
+    rgba(255,0,102,0.8), 
+    rgba(0,255,153,0.8), 
+    rgba(51,153,255,0.8),
+    rgba(255,255,255,0.8)
+  );
+  background-size: 300% 100%;
+  filter: blur(12px);
+  opacity: 0.6;
   transition: opacity 0.3s;
   z-index: 0;
   pointer-events: none;
-  animation: glowPulse 2s infinite alternate;
+  animation: glowFlow 4s linear infinite;
 }
-@keyframes glowPulse { 0% { opacity: 0.5; } 100% { opacity: 1; } }
+body.light-mode .input-wrapper::before {
+  background: linear-gradient(90deg, 
+    rgba(0,0,0,0.6), 
+    rgba(255,0,102,0.7), 
+    rgba(0,204,136,0.7), 
+    rgba(51,102,255,0.7),
+    rgba(0,0,0,0.6)
+  );
+  background-size: 300% 100%;
+  opacity: 0.5;
+}
+@keyframes glowFlow { 
+  0% { background-position: 0% center; } 
+  100% { background-position: 300% center; } 
+}
 
 .input-wrapper input {
   position: relative;
