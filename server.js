@@ -36,38 +36,17 @@ body.light-mode h1{background:linear-gradient(90deg,#000 0%,#ff0066 25%,#00cc88 
 .input-wrapper::before {
   content: "";
   position: absolute;
-  top: -3px; left: -3px; right: -3px; bottom: -3px;
-  border-radius: 15px;
-  background: conic-gradient(
-    from 0deg,
-    rgba(255,255,255,0),
-    rgba(255,255,255,0.9),
-    rgba(255,255,255,0),
-    rgba(255,255,255,0),
-    rgba(255,255,255,0.9),
-    rgba(255,255,255,0)
-  );
-  filter: blur(10px);
-  opacity: 0.8;
+  top: 0; left: 0; right: 0; bottom: 0;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.3);
+  background: rgba(255,255,255,0.03);
+  backdrop-filter: blur(10px);
   z-index: 0;
   pointer-events: none;
-  animation: spinGlow 3s linear infinite;
 }
 body.light-mode .input-wrapper::before {
-  background: conic-gradient(
-    from 0deg,
-    rgba(0,0,0,0),
-    rgba(0,0,0,0.8),
-    rgba(0,0,0,0),
-    rgba(0,0,0,0),
-    rgba(0,0,0,0.8),
-    rgba(0,0,0,0)
-  );
-  opacity: 0.6;
-}
-@keyframes spinGlow { 
-  0% { transform: rotate(0deg); } 
-  100% { transform: rotate(360deg); } 
+  border: 1px solid rgba(0,0,0,0.2);
+  background: rgba(0,0,0,0.02);
 }
 
 .input-wrapper input {
