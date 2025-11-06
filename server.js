@@ -31,13 +31,41 @@ h1{font-size:48px;margin-bottom:30px;background:linear-gradient(90deg,#fff 0%,#f
 body.light-mode h1{background:linear-gradient(90deg,#000 0%,#ff0066 25%,#00cc88 50%,#3366ff 75%,#000 100%);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:flow 4s linear infinite;}
 @keyframes flow{to{background-position:200% center;}}
 
-.input-wrapper{position:relative;display:inline-block;}
-.input-wrapper::before{content:"";position:absolute;top:-2px;left:-2px;right:-2px;bottom:-2px;background:conic-gradient(from 0deg, rgba(255,255,255,0.1), rgba(255,255,255,0.8), rgba(255,255,255,0.1));border-radius:14px;animation:glowRotate 3s linear infinite;z-index:0;}
-@keyframes glowRotate{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
-input{position:relative;width:400px;max-width:90%;padding:15px;margin:20px 0;border-radius:12px;border:none;background:rgba(255,255,255,0.05);color:#fff;font-size:16px;text-align:center;cursor:text;z-index:1;outline:none;}
-body.light-mode input{background:rgba(0,0,0,0.05);color:#000;}
-input::placeholder{color:rgba(255,255,255,0.4);}
-body.light-mode input::placeholder{color:rgba(0,0,0,0.4);}
+/* Glowing input effect */
+.input-wrapper { position: relative; display: inline-block; }
+.input-wrapper::before {
+  content: "";
+  position: absolute;
+  top: -4px; left: -4px; right: -4px; bottom: -4px;
+  border-radius: 16px;
+  background: linear-gradient(45deg, rgba(255,255,255,0.4), rgba(0,255,255,0.4), rgba(255,0,255,0.4));
+  filter: blur(8px);
+  opacity: 0.7;
+  transition: opacity 0.3s;
+  z-index: 0;
+  pointer-events: none;
+  animation: glowPulse 2s infinite alternate;
+}
+@keyframes glowPulse { 0% { opacity: 0.5; } 100% { opacity: 1; } }
+
+.input-wrapper input {
+  position: relative;
+  width: 400px;
+  max-width: 90%;
+  padding: 15px;
+  margin: 20px 0;
+  border-radius: 12px;
+  border: none;
+  background: rgba(255,255,255,0.05);
+  color: #fff;
+  font-size: 16px;
+  text-align: center;
+  z-index: 1;
+  outline: none;
+}
+body.light-mode .input-wrapper input { background: rgba(0,0,0,0.05); color:#000; }
+.input-wrapper input::placeholder { color: rgba(255,255,255,0.4); }
+body.light-mode .input-wrapper input::placeholder { color: rgba(0,0,0,0.4); }
 
 button{padding:15px 40px;background:#fff;color:#000;border:none;border-radius:12px;font-weight:700;cursor:pointer;font-size:14px;text-transform:uppercase;transition:0.3s;}
 body.light-mode button{background:#000;color:#fff;}
@@ -127,5 +155,5 @@ app.listen(PORT, () => {
     fetch("https://" + (process.env.RENDER_EXTERNAL_URL || ("localhost:"+PORT)))
       .then(()=>console.log('Keep-alive ping sent'))
       .catch(err=>console.log('Ping failed:', err.message));
-  }, 10 * 60 * 1000); // every 10 minutes
+  }, 10 * 60 * 1000);
 });
