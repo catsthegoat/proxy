@@ -145,8 +145,6 @@ body.light-mode .back-btn {
 </div>
 
 <script>
-// Escape ${} in JS inside HTML by using raw string
-const scriptContent = String.raw\`
 let lightMode = false;
 function toggleMode() {
   lightMode = !lightMode;
@@ -271,13 +269,6 @@ frame.addEventListener('load', () => {
       form.setAttribute('target', '_self');
     });
   } catch (e) {}
-});
-\`;
-
-document.addEventListener('DOMContentLoaded', () => {
-  const script = document.createElement('script');
-  script.textContent = scriptContent;
-  document.body.appendChild(script);
 });
 </script>
 </body>
