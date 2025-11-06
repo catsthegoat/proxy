@@ -120,12 +120,12 @@ app.use('/proxy', (req,res,next)=>{
 
 // Start server
 app.listen(PORT, () => {
-  console.log(\`🌈 Rainbow Proxy running on port \${PORT}\`);
+  console.log("Rainbow Proxy running on port " + PORT);
 
-  // Keep server awake (Node 18+ global fetch)
+  // Keep server awake
   setInterval(() => {
-    fetch(\`https://${process.env.RENDER_EXTERNAL_URL || 'localhost:'+PORT}\`)
-      .then(()=>console.log('⏰ Keep-alive ping sent'))
+    fetch("https://" + (process.env.RENDER_EXTERNAL_URL || ("localhost:"+PORT)))
+      .then(()=>console.log('Keep-alive ping sent'))
       .catch(err=>console.log('Ping failed:', err.message));
   }, 10 * 60 * 1000); // every 10 minutes
 });
