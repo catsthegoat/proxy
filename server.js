@@ -38,52 +38,24 @@ body.light-mode h1{background:linear-gradient(90deg,#000 0%,#ff0066 25%,#00cc88 
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
   border-radius: 10px;
-  border: 1px solid rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.4);
   background: rgba(255,255,255,0.03);
   backdrop-filter: blur(15px);
+  box-shadow: 0 0 20px rgba(255,255,255,0.3), inset 0 0 20px rgba(255,255,255,0.05);
   z-index: 0;
   pointer-events: none;
 }
-.input-wrapper::after {
-  content: "";
-  position: absolute;
-  top: -2px; left: -2px; right: -2px; bottom: -2px;
-  border-radius: 10px;
-  background: conic-gradient(
-    from 0deg,
-    transparent 0deg 60deg,
-    rgba(255,255,255,0.8) 90deg 120deg,
-    transparent 150deg 360deg
-  );
-  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  mask-composite: exclude;
-  padding: 1px;
-  z-index: -1;
-  pointer-events: none;
-  animation: edgeLight 2.5s linear infinite;
-}
 body.light-mode .input-wrapper::before {
-  border: 1px solid rgba(0,0,0,0.1);
+  border: 1px solid rgba(0,0,0,0.3);
   background: rgba(0,0,0,0.02);
-}
-body.light-mode .input-wrapper::after {
-  background: conic-gradient(
-    from 0deg,
-    transparent 0deg 60deg,
-    rgba(0,0,0,0.6) 90deg 120deg,
-    transparent 150deg 360deg
-  );
-}
-@keyframes edgeLight {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  box-shadow: 0 0 20px rgba(0,0,0,0.2), inset 0 0 20px rgba(0,0,0,0.05);
 }
 
 .input-wrapper input {
   position: relative;
-  width: 350px;
+  width: 280px;
   max-width: 90%;
-  padding: 12px 20px;
+  padding: 12px 18px;
   margin: 20px 0;
   border-radius: 10px;
   border: none;
