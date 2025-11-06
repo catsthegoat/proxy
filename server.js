@@ -78,14 +78,14 @@ body.light-mode .input-wrapper::before {
   margin: 20px 0;
   border-radius: 12px;
   border: none;
-  background: rgba(255,255,255,0.05);
+  background: transparent;
   color: #fff;
   font-size: 16px;
   text-align: center;
   z-index: 1;
   outline: none;
 }
-body.light-mode .input-wrapper input { background: rgba(0,0,0,0.05); color:#000; }
+body.light-mode .input-wrapper input { color:#000; }
 .input-wrapper input::placeholder { color: rgba(255,255,255,0.4); }
 body.light-mode .input-wrapper input::placeholder { color: rgba(0,0,0,0.4); }
 
