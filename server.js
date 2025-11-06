@@ -26,7 +26,8 @@ body{font-family:'Inter',sans-serif;background:#000;color:#fff;min-height:100vh;
 body.light-mode{background:#fff;color:#000;}
 body.proxied{overflow:auto;display:block;cursor:auto;}
 #trail{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9998;}
-.container{text-align:center;padding:40px;position:relative;z-index:10;}
+.container{text-align:center;padding:40px;position:relative;z-index:10;transition:opacity 0.3s;}
+.container.hide{opacity:0;pointer-events:none;}
 
 h1{font-size:48px;margin-bottom:30px;background:linear-gradient(90deg,#fff 0%,#ff0066 25%,#00ff99 50%,#3399ff 75%,#fff 100%);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:flow 4s linear infinite;}
 body.light-mode h1{background:linear-gradient(90deg,#000 0%,#ff0066 25%,#00cc88 50%,#3366ff 75%,#000 100%);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:flow 4s linear infinite;}
@@ -54,9 +55,9 @@ body.light-mode .input-wrapper::before {
 
 .input-wrapper input {
   position: relative;
-  width: 240px;
+  width: 400px;
   max-width: 90%;
-  padding: 8px 14px;
+  padding: 12px 20px;
   margin: 20px 0 40px 0;
   border-radius: 8px;
   border: none;
@@ -91,9 +92,19 @@ body.light-mode .mode-toggle{background:rgba(0,0,0,0.1);border:1px solid rgba(0,
 .mode-toggle:hover{background:rgba(255,255,255,0.2);transform:scale(1.05);}
 body.light-mode .mode-toggle:hover{background:rgba(0,0,0,0.2);}
 
-#proxyFrame{display:none;position:fixed;top:0;left:0;width:100%;height:100%;border:none;background:#fff;z-index:1;}
+#proxyFrame{display:none;position:fixed;top:0;left:0;width:100%;height:100%;border:none;background:#fff;z-index:1;opacity:0;transition:opacity 0.5s;}
+#proxyFrame.show{opacity:1;}
 .back-btn{display:none;position:fixed;top:20px;left:20px;padding:10px 20px;background:rgba(255,255,255,0.9);color:#000;border:none;border-radius:10px;font-weight:700;cursor:pointer;z-index:102;transition:0.3s;}
 .back-btn:hover{transform:scale(1.05);background:#fff;}
+
+.loader{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;z-index:103;opacity:0;transition:opacity 0.3s;}
+.loader.show{opacity:1;}
+.loader-text{font-size:18px;color:#fff;margin-bottom:15px;animation:pulse 1.5s ease-in-out infinite;}
+.loader-url{font-size:14px;color:rgba(255,255,255,0.6);font-family:monospace;}
+@keyframes pulse{0%,100%{opacity:0.5;}50%{opacity:1;}}
+.loader-dots{display:inline-block;}
+.loader-dots::after{content:'...';animation:dots 1.5s steps(4) infinite;}
+@keyframes dots{0%{content:'';}25%{content:'.';}50%{content:'..';}75%,100%{content:'...';}}
 </style>
 </head>
 <body>
@@ -101,6 +112,10 @@ body.light-mode .mode-toggle:hover{background:rgba(0,0,0,0.2);}
 <div class="cursor"></div>
 <div class="mode-toggle" onclick="toggleMode()">⚫ / ⚪</div>
 <button class="back-btn" onclick="goBack()">← BACK</button>
+<div class="loader">
+  <div class="loader-text">Loading<span class="loader-dots"></span></div>
+  <div class="loader-url"></div>
+</div>
 <div class="container">
 <h1>RAINBOW PROXY</h1>
 <div class="input-wrapper">
@@ -118,11 +133,12 @@ function toggleMode(){lightMode=!lightMode;document.body.classList.toggle('light
 
 const canvas=document.getElementById('trail');const ctx=canvas.getContext('2d');const cursor=document.querySelector('.cursor');canvas.width=window.innerWidth;canvas.height=window.innerHeight;
 let particles=[];let mouseX=window.innerWidth/2;let mouseY=window.innerHeight/2;
+let isProxied=false;
 
 class Particle{constructor(x,y){this.x=x;this.y=y;this.size=Math.random()*4+2;this.speedX=Math.random()*2-1;this.speedY=Math.random()*2-1;this.life=1;}update(){this.x+=this.speedX;this.y+=this.speedY;this.life-=0.015;if(this.size>0.1)this.size-=0.03;}draw(){const color=lightMode?'0,0,0':'255,255,255';ctx.fillStyle='rgba('+color+','+this.life+')';ctx.shadowBlur=10;ctx.shadowColor=lightMode?'rgba(0,0,0,'+this.life+')':'rgba(255,255,255,'+this.life+')';ctx.beginPath();ctx.arc(this.x,this.y,this.size,0,Math.PI*2);ctx.fill();}}
 let cursorX=mouseX;let cursorY=mouseY;
-document.addEventListener('mousemove',e=>{mouseX=e.clientX;mouseY=e.clientY;for(let i=0;i<5;i++){particles.push(new Particle(mouseX,mouseY));}});
-function animate(){ctx.clearRect(0,0,canvas.width,canvas.height);cursorX+=(mouseX-cursorX)*0.3;cursorY+=(mouseY-cursorY)*0.3;cursor.style.left=cursorX+'px';cursor.style.top=cursorY+'px';for(let i=particles.length-1;i>=0;i--){particles[i].update();particles[i].draw();if(particles[i].life<=0){particles.splice(i,1);}}requestAnimationFrame(animate);}
+document.addEventListener('mousemove',e=>{if(!isProxied){mouseX=e.clientX;mouseY=e.clientY;if(particles.length<100){for(let i=0;i<3;i++){particles.push(new Particle(mouseX,mouseY));}}}});
+function animate(){if(!isProxied){ctx.clearRect(0,0,canvas.width,canvas.height);cursorX+=(mouseX-cursorX)*0.3;cursorY+=(mouseY-cursorY)*0.3;cursor.style.left=cursorX+'px';cursor.style.top=cursorY+'px';for(let i=particles.length-1;i>=0;i--){particles[i].update();particles[i].draw();if(particles[i].life<=0){particles.splice(i,1);}}}requestAnimationFrame(animate);}
 animate();
 window.addEventListener('resize',()=>{canvas.width=window.innerWidth;canvas.height=window.innerHeight;});
 
@@ -131,27 +147,63 @@ function go(){
   if(!url)return;
   if(!url.match(/^https?:\\/\\//))url='https://'+url;
   
-  document.querySelector('.container').style.display='none';
-  document.querySelector('.back-btn').style.display='block';
-  document.querySelector('#trail').style.display='none';
-  document.querySelector('.cursor').style.display='none';
-  document.querySelector('.mode-toggle').style.display='none';
+  isProxied=true;
+  const container=document.querySelector('.container');
+  const loader=document.querySelector('.loader');
+  const loaderUrl=document.querySelector('.loader-url');
+  const trail=document.querySelector('#trail');
+  const cursorEl=document.querySelector('.cursor');
+  const modeToggle=document.querySelector('.mode-toggle');
+  
+  container.classList.add('hide');
+  setTimeout(()=>{
+    container.style.display='none';
+    loader.style.display='block';
+    loaderUrl.textContent=url;
+    setTimeout(()=>loader.classList.add('show'),50);
+  },300);
+  
+  trail.style.display='none';
+  cursorEl.style.display='none';
+  modeToggle.style.display='none';
   document.body.classList.add('proxied');
   
   const frame=document.getElementById('proxyFrame');
   frame.style.display='block';
   frame.src='/proxy?url='+encodeURIComponent(url);
+  
+  setTimeout(()=>{
+    loader.classList.remove('show');
+    setTimeout(()=>{
+      loader.style.display='none';
+      frame.classList.add('show');
+      document.querySelector('.back-btn').style.display='block';
+    },300);
+  },1500);
 }
 
 function goBack(){
-  document.querySelector('.container').style.display='block';
+  isProxied=false;
+  const container=document.querySelector('.container');
+  const frame=document.getElementById('proxyFrame');
+  const trail=document.querySelector('#trail');
+  const cursorEl=document.querySelector('.cursor');
+  const modeToggle=document.querySelector('.mode-toggle');
+  
+  frame.classList.remove('show');
   document.querySelector('.back-btn').style.display='none';
-  document.querySelector('#trail').style.display='block';
-  document.querySelector('.cursor').style.display='block';
-  document.querySelector('.mode-toggle').style.display='block';
-  document.body.classList.remove('proxied');
-  document.getElementById('proxyFrame').style.display='none';
-  document.getElementById('url').value='';
+  
+  setTimeout(()=>{
+    frame.style.display='none';
+    frame.src='';
+    container.style.display='block';
+    trail.style.display='block';
+    cursorEl.style.display='block';
+    modeToggle.style.display='block';
+    document.body.classList.remove('proxied');
+    setTimeout(()=>container.classList.remove('hide'),50);
+    document.getElementById('url').value='';
+  },300);
 }
 
 document.getElementById('url').addEventListener('keypress',e=>e.key==='Enter'&&go());
