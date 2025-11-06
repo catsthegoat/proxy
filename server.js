@@ -36,37 +36,38 @@ body.light-mode h1{background:linear-gradient(90deg,#000 0%,#ff0066 25%,#00cc88 
 .input-wrapper::before {
   content: "";
   position: absolute;
-  top: -2px; left: -2px; right: -2px; bottom: -2px;
-  border-radius: 14px;
-  background: linear-gradient(90deg, 
-    rgba(255,255,255,0.8), 
-    rgba(255,0,102,0.8), 
-    rgba(0,255,153,0.8), 
-    rgba(51,153,255,0.8),
-    rgba(255,255,255,0.8)
+  top: -3px; left: -3px; right: -3px; bottom: -3px;
+  border-radius: 15px;
+  background: conic-gradient(
+    from 0deg,
+    rgba(255,255,255,0),
+    rgba(255,255,255,0.9),
+    rgba(255,255,255,0),
+    rgba(255,255,255,0),
+    rgba(255,255,255,0.9),
+    rgba(255,255,255,0)
   );
-  background-size: 300% 100%;
-  filter: blur(12px);
-  opacity: 0.6;
-  transition: opacity 0.3s;
+  filter: blur(10px);
+  opacity: 0.8;
   z-index: 0;
   pointer-events: none;
-  animation: glowFlow 4s linear infinite;
+  animation: spinGlow 3s linear infinite;
 }
 body.light-mode .input-wrapper::before {
-  background: linear-gradient(90deg, 
-    rgba(0,0,0,0.6), 
-    rgba(255,0,102,0.7), 
-    rgba(0,204,136,0.7), 
-    rgba(51,102,255,0.7),
-    rgba(0,0,0,0.6)
+  background: conic-gradient(
+    from 0deg,
+    rgba(0,0,0,0),
+    rgba(0,0,0,0.8),
+    rgba(0,0,0,0),
+    rgba(0,0,0,0),
+    rgba(0,0,0,0.8),
+    rgba(0,0,0,0)
   );
-  background-size: 300% 100%;
-  opacity: 0.5;
+  opacity: 0.6;
 }
-@keyframes glowFlow { 
-  0% { background-position: 0% center; } 
-  100% { background-position: 300% center; } 
+@keyframes spinGlow { 
+  0% { transform: rotate(0deg); } 
+  100% { transform: rotate(360deg); } 
 }
 
 .input-wrapper input {
