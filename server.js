@@ -63,12 +63,53 @@ app.get('/', (req, res) => {
     }
 
     @keyframes flow { to { background-position:200% center; } }
-    
-    input { width:400px; max-width:90%; padding:15px; margin:20px 0; border-radius:12px; border:1px solid rgba(255,255,255,0.2); background:rgba(255,255,255,0.05); color:#fff; font-size:16px; text-align:center; cursor:text; }
-    body.light-mode input { border:1px solid rgba(0,0,0,0.2); background:rgba(0,0,0,0.05); color:#000; }
+
+    /* === Glowing Input Box === */
+    .input-wrapper {
+      position: relative;
+      display: inline-block;
+    }
+
+    .input-wrapper::before {
+      content: "";
+      position: absolute;
+      top: -2px; left: -2px; right: -2px; bottom: -2px;
+      background: conic-gradient(from 0deg, rgba(255,255,255,0.1), rgba(255,255,255,0.8), rgba(255,255,255,0.1));
+      border-radius: 14px;
+      animation: glowRotate 3s linear infinite;
+      z-index: 0;
+    }
+
+    @keyframes glowRotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    input {
+      position: relative;
+      width:400px;
+      max-width:90%;
+      padding:15px;
+      margin:20px 0;
+      border-radius:12px;
+      border:none;
+      background:rgba(255,255,255,0.05);
+      color:#fff;
+      font-size:16px;
+      text-align:center;
+      cursor:text;
+      z-index: 1;
+      outline: none;
+    }
+
+    body.light-mode input {
+      background:rgba(0,0,0,0.05);
+      color:#000;
+    }
+
     input::placeholder { color:rgba(255,255,255,0.4); }
     body.light-mode input::placeholder { color:rgba(0,0,0,0.4); }
-    
+
     button { padding:15px 40px; background:#fff; color:#000; border:none; border-radius:12px; font-weight:700; cursor:pointer; font-size:14px; text-transform:uppercase; transition:0.3s; }
     body.light-mode button { background:#000; color:#fff; }
     button:hover { transform:translateY(-2px); box-shadow:0 10px 30px rgba(255,255,255,0.3); }
@@ -100,7 +141,9 @@ app.get('/', (req, res) => {
   <div class="mode-toggle" onclick="toggleMode()">⚫ / ⚪</div>
   <div class="container">
     <h1>RAINBOW PROXY</h1>
-    <input id="url" placeholder="enter url (e.g. example.com)">
+    <div class="input-wrapper">
+      <input id="url" placeholder="enter url (e.g. example.com)">
+    </div>
     <br>
     <button onclick="go()">GO</button>
     <div class="status">Server running ✓</div>
