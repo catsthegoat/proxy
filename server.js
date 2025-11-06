@@ -36,7 +36,6 @@ body.light-mode{background:#fff;color:#000;}
 h1{font-size:48px;margin-bottom:30px;background:linear-gradient(90deg,#fff 0%,#ff0066 25%,#00ff99 50%,#3399ff 75%,#fff 100%);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:flow 4s linear infinite;}
 body.light-mode h1{background:linear-gradient(90deg,#000 0%,#ff0066 25%,#00cc88 50%,#3366ff 75%,#000 100%);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:flow 4s linear infinite;}
 @keyframes flow{to{background-position:200% center;}}
-/* Glowing input effect */
 .input-wrapper { position: relative; display: inline-block; }
 .input-wrapper::before {
   content: "";
@@ -90,7 +89,6 @@ body.light-mode .mode-toggle{background:rgba(0,0,0,0.1);border:1px solid rgba(0,
 .mode-toggle:hover{background:rgba(255,255,255,0.2);transform:scale(1.05);}
 body.light-mode .mode-toggle:hover{background:rgba(0,0,0,0.2);}
 
-/* Iframe container */
 #proxy-frame-container {
   margin-top: 40px;
   display: none;
@@ -140,7 +138,6 @@ body.light-mode .back-btn {
 <div class="status">Server running</div>
 <div class="secret">made by emma</div>
 
-<!-- Proxy iframe -->
 <div id="proxy-frame-container">
   <iframe id="proxy-frame"></iframe>
   <button class="back-btn" onclick="back()">Back</button>
@@ -148,13 +145,14 @@ body.light-mode .back-btn {
 </div>
 
 <script>
+// Escape ${} in JS inside HTML by using raw string
+const scriptContent = String.raw\`
 let lightMode = false;
 function toggleMode() {
   lightMode = !lightMode;
   document.body.classList.toggle('light-mode', lightMode);
 }
 
-// Canvas trail + cursor
 const canvas = document.getElementById('trail');
 const ctx = canvas.getContext('2d');
 const cursor = document.querySelector('.cursor');
@@ -181,9 +179,9 @@ class Particle {
   }
   draw() {
     const color = lightMode ? '0,0,0' : '255,255,255';
-    ctx.fillStyle = `rgba(${color},${this.life})`;
+    ctx.fillStyle = 'rgba(' + color + ',' + this.life + ')';
     ctx.shadowBlur = 10;
-    ctx.shadowColor = lightMode ? `rgba(0,0,0,${this.life})` : `rgba(255,255,255,${this.life})`;
+    ctx.shadowColor = lightMode ? 'rgba(0,0,0,' + this.life + ')' : 'rgba(255,255,255,' + this.life + ')';
     ctx.beginPath();
     ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
     ctx.fill();
@@ -215,24 +213,18 @@ window.addEventListener('resize', () => {
   canvas.height = window.innerHeight;
 });
 
-// === PROXY LOGIC ===
 const frameContainer = document.getElementById('proxy-frame-container');
 const frame = document.getElementById('proxy-frame');
 
 function go() {
   let input = document.getElementById('url').value.trim();
   if (!input) return;
-
   if (!input.match(/^https?:\/\//)) input = 'https://' + input;
-
   let url;
   try { url = new URL(input); } catch { return alert('Invalid URL'); }
-
-  const proxyUrl = `/proxy?url=${encodeURIComponent(url.toString())}`;
-
+  const proxyUrl = '/proxy?url=' + encodeURIComponent(url.toString());
   frameContainer.classList.add('show');
   frame.src = proxyUrl;
-
   setTimeout(() => frameContainer.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
 }
 
@@ -245,19 +237,17 @@ document.getElementById('url').addEventListener('keypress', e => {
   if (e.key === 'Enter') go();
 });
 
-// Optional: Rewrite links inside iframe
 frame.addEventListener('load', () => {
   try {
     const doc = frame.contentDocument || frame.contentWindow.document;
     if (!doc) return;
-
     const urlParam = new URL(frame.src).searchParams.get('url');
     if (!urlParam) return;
     const targetUrl = decodeURIComponent(urlParam);
     const origin = new URL(targetUrl).origin;
 
     const rewriteAttr = (attr) => {
-      doc.querySelectorAll(`[${attr}]`).forEach(el => {
+      doc.querySelectorAll('[' + attr + ']').forEach(el => {
         let val = el.getAttribute(attr);
         if (!val) return;
         let full;
@@ -266,7 +256,7 @@ frame.addEventListener('load', () => {
         else if (val.startsWith('/')) full = origin + val;
         else if (!val.startsWith('#') && !val.startsWith('javascript:')) full = origin + '/' + val;
         else return;
-        el.setAttribute(attr, `/proxy?url=${encodeURIComponent(full)}`);
+        el.setAttribute(attr, '/proxy?url=' + encodeURIComponent(full));
       });
     };
 
@@ -276,23 +266,25 @@ frame.addEventListener('load', () => {
 
     doc.querySelectorAll('form').forEach(form => {
       let action = form.getAttribute('action') || '';
-      let full;
-      if (action.startsWith('http')) full = action;
-      else if (action.startsWith('/')) full = origin + action;
-      else full = origin + '/' + action;
-      form.setAttribute('action', `/proxy?url=${encodeURIComponent(full)}`);
+      let full = action.startsWith('http') ? action : (action.startsWith('/') ? origin + action : origin + '/' + action);
+      form.setAttribute('action', '/proxy?url=' + encodeURIComponent(full));
       form.setAttribute('target', '_self');
     });
-  } catch (e) {
-    // Expected for cross-origin iframes
-  }
+  } catch (e) {}
+});
+\`;
+
+document.addEventListener('DOMContentLoaded', () => {
+  const script = document.createElement('script');
+  script.textContent = scriptContent;
+  document.body.appendChild(script);
 });
 </script>
 </body>
 </html>`);
 });
 
-// Proxy endpoint with HTML rewriting
+// Proxy endpoint
 app.use('/proxy', (req, res, next) => {
   const targetUrl = req.query.url;
   if (!targetUrl) return res.status(400).send('Missing URL');
