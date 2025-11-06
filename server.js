@@ -25,7 +25,14 @@ app.get('/', (req, res) => {
 body{font-family:'Inter',sans-serif;background:#000;color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:none;transition:background 0.3s,color 0.3s;}
 body.light-mode{background:#fff;color:#000;}
 #trail{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9998;}
-.container{text-align:center;padding:40px;position:relative;z-index:10;}
+.container {
+  text-align: center;
+  padding: 40px;
+  position: relative;
+  z-index: 10;
+  transform: translateY(-60px); /* move everything up */
+}
+
 
 h1{font-size:48px;margin-bottom:30px;background:linear-gradient(90deg,#fff 0%,#ff0066 25%,#00ff99 50%,#3399ff 75%,#fff 100%);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:flow 4s linear infinite;}
 body.light-mode h1{background:linear-gradient(90deg,#000 0%,#ff0066 25%,#00cc88 50%,#3366ff 75%,#000 100%);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:flow 4s linear infinite;}
