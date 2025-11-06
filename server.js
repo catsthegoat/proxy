@@ -38,15 +38,15 @@ body.light-mode h1{background:linear-gradient(90deg,#000 0%,#ff0066 25%,#00cc88 
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
   border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.3);
-  background: rgba(255,255,255,0.03);
-  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(20px);
   z-index: 0;
   pointer-events: none;
 }
 body.light-mode .input-wrapper::before {
-  border: 1px solid rgba(0,0,0,0.2);
-  background: rgba(0,0,0,0.02);
+  border: 1px solid rgba(0,0,0,0.15);
+  background: rgba(0,0,0,0.05);
 }
 
 .input-wrapper input {
