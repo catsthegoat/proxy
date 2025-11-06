@@ -1,10 +1,11 @@
+// server.js
 const express = require('express');
 const { createProxyMiddleware } = require('http-proxy-middleware');
-const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
+const fetch = require('node-fetch'); // Works on Node 18+ if installed via npm
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Allow all CORS and remove blocking headers
+// Allow all CORS
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', '*');
@@ -92,18 +93,13 @@ app.get('/', (req, res) => {
 <script>
 let lightMode=false;
 function toggleMode(){lightMode=!lightMode;document.body.classList.toggle('light-mode',lightMode);}
-
-const canvas=document.getElementById('trail');
-const ctx=canvas.getContext('2d');
-const cursor=document.querySelector('.cursor');
-canvas.width=window.innerWidth;canvas.height=window.innerHeight;
+const canvas=document.getElementById('trail');const ctx=canvas.getContext('2d');const cursor=document.querySelector('.cursor');canvas.width=window.innerWidth;canvas.height=window.innerHeight;
 let particles=[];let mouseX=window.innerWidth/2;let mouseY=window.innerHeight/2;
 class Particle{constructor(x,y){this.x=x;this.y=y;this.size=Math.random()*4+2;this.speedX=Math.random()*2-1;this.speedY=Math.random()*2-1;this.life=1;}update(){this.x+=this.speedX;this.y+=this.speedY;this.life-=0.015;if(this.size>0.1)this.size-=0.03;}draw(){const color=lightMode?'0,0,0':'255,255,255';ctx.fillStyle='rgba('+color+','+this.life+')';ctx.shadowBlur=10;ctx.shadowColor=lightMode?'rgba(0,0,0,'+this.life+')':'rgba(255,255,255,'+this.life+')';ctx.beginPath();ctx.arc(this.x,this.y,this.size,0,Math.PI*2);ctx.fill();}}
 let cursorX=mouseX;let cursorY=mouseY;
 document.addEventListener('mousemove',e=>{mouseX=e.clientX;mouseY=e.clientY;for(let i=0;i<5;i++){particles.push(new Particle(mouseX,mouseY));}});
 function animate(){ctx.clearRect(0,0,canvas.width,canvas.height);cursorX+=(mouseX-cursorX)*0.3;cursorY+=(mouseY-cursorY)*0.3;cursor.style.left=cursorX+'px';cursor.style.top=cursorY+'px';for(let i=particles.length-1;i>=0;i--){particles[i].update();particles[i].draw();if(particles[i].life<=0){particles.splice(i,1);}}requestAnimationFrame(animate);}
-animate();
-window.addEventListener('resize',()=>{canvas.width=window.innerWidth;canvas.height=window.innerHeight;});
+animate();window.addEventListener('resize',()=>{canvas.width=window.innerWidth;canvas.height=window.innerHeight;});
 function go(){let url=document.getElementById('url').value.trim();if(!url)return;if(!url.match(/^https?:\\/\\//))url='https://'+url;window.location.href='/proxy?url='+encodeURIComponent(url);}
 document.getElementById('url').addEventListener('keypress',e=>e.key==='Enter'&&go());
 </script>
@@ -115,10 +111,38 @@ document.getElementById('url').addEventListener('keypress',e=>e.key==='Enter'&&g
 app.use('/proxy', (req,res,next)=>{
   const targetUrl=req.query.url;
   if(!targetUrl) return res.status(400).send('Missing URL');
-  try{
-    const url=new URL(targetUrl);
-    const proxy=createProxyMiddleware({
-      target:url.origin,
-      changeOrigin:true,
-      pathRewrite:()=>url.pathname+url.search,
-     
+
+  let url;
+  try { url = new URL(targetUrl); } 
+  catch { return res.status(400).send('Invalid URL'); }
+
+  const proxy = createProxyMiddleware({
+    target: url.origin,
+    changeOrigin: true,
+    pathRewrite: ()=>url.pathname + url.search,
+    onProxyRes: proxyRes => {
+      delete proxyRes.headers['x-frame-options'];
+      delete proxyRes.headers['content-security-policy'];
+      delete proxyRes.headers['x-content-type-options'];
+      delete proxyRes.headers['strict-transport-security'];
+    },
+    onError: (err, req, res) => {
+      res.status(500).send('Proxy error: ' + err.message);
+    }
+  });
+
+  return proxy(req,res,next);
+});
+
+// Start server
+console.log('🌈 Rainbow Proxy starting...');
+app.listen(PORT, () => {
+  console.log(`🌈 Rainbow Proxy running on port ${PORT}`);
+
+  // Optional keep-alive ping (Render may not need this)
+  setInterval(()=>{
+    fetch(`https://your-app-name.onrender.com`)
+      .then(()=>console.log('⏰ Keep-alive ping sent'))
+      .catch(err=>console.log('Ping failed:', err.message));
+  },10*60*1000); // 10 min
+});
