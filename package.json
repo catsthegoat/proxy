@@ -10,11 +10,3 @@
   },
   "engines": { "node": "18.x" }
 }
-```
-
-**2. `server.js`** - Use the code from the artifact I just created (the one with `node-fetch` and `jsdom`)
-
-**3. `.gitignore`** (create this if you don't have it)
-```
-node_modules/
-.env
