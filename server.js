@@ -100,7 +100,7 @@ body.light-mode .mode-toggle:hover{background:rgba(0,0,0,0.2);}
 <div class="input-wrapper">
 <input id="url" placeholder="enter url (e.g. example.com)">
 </div>
-<br>
+<br><br>
 <button onclick="go()">GO</button>
 <div class="status">Server running ✓</div>
 <div class="secret">made by emma</div>
