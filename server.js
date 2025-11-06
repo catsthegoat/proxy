@@ -28,8 +28,40 @@ app.get('/', (req, res) => {
     #trail { position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:9998; }
     
     .container { text-align:center; padding:40px; position:relative; z-index:10; }
-    h1 { font-size:48px; margin-bottom:30px; background:linear-gradient(90deg,#fff 20%,#ff0066 40%,#00ff99 60%,#3399ff 80%,#fff 100%); background-size:200% auto; -webkit-background-clip:text; -webkit-text-fill-color:transparent; animation:flow 4s linear infinite; }
-    body.light-mode h1 { background:linear-gradient(90deg,#666 10%,#ff0066 30%,#00ff99 50%,#3399ff 70%,#666 90%); }
+
+    /* === Fixed Gradient Text === */
+    h1 {
+      font-size:48px;
+      margin-bottom:30px;
+      background:linear-gradient(
+        90deg,
+        #ffffff 0%,
+        #ff0066 25%,
+        #00ff99 50%,
+        #3399ff 75%,
+        #ffffff 100%
+      );
+      background-size:200% auto;
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      animation:flow 4s linear infinite;
+    }
+
+    body.light-mode h1 {
+      background:linear-gradient(
+        90deg,
+        #000000 0%,
+        #ff0066 25%,
+        #00cc88 50%,
+        #3366ff 75%,
+        #000000 100%
+      );
+      background-size:200% auto;
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      animation:flow 4s linear infinite;
+    }
+
     @keyframes flow { to { background-position:200% center; } }
     
     input { width:400px; max-width:90%; padding:15px; margin:20px 0; border-radius:12px; border:1px solid rgba(255,255,255,0.2); background:rgba(255,255,255,0.05); color:#fff; font-size:16px; text-align:center; cursor:text; }
@@ -137,7 +169,6 @@ app.get('/', (req, res) => {
     function animate() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       
-      // Smooth cursor follow - increased from 0.15 to 0.3 for closer following
       cursorX += (mouseX - cursorX) * 0.3;
       cursorY += (mouseY - cursorY) * 0.3;
       cursor.style.left = cursorX + 'px';
@@ -146,7 +177,6 @@ app.get('/', (req, res) => {
       for (let i = particles.length - 1; i >= 0; i--) {
         particles[i].update();
         particles[i].draw();
-        
         if (particles[i].life <= 0) {
           particles.splice(i, 1);
         }
@@ -189,7 +219,6 @@ app.use('/proxy', (req, res, next) => {
       changeOrigin: true,
       pathRewrite: () => url.pathname + url.search,
       onProxyRes: (proxyRes) => {
-        // Remove headers that block embedding
         delete proxyRes.headers['x-frame-options'];
         delete proxyRes.headers['content-security-policy'];
         delete proxyRes.headers['x-content-type-options'];
@@ -205,12 +234,12 @@ app.use('/proxy', (req, res, next) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`🌈 Rainbow Proxy running on port ${PORT}`);
-  
+  console.log(\`🌈 Rainbow Proxy running on port \${PORT}\`);
+
   // Keep server awake by pinging itself every 10 minutes
   setInterval(() => {
-    fetch(`https://proxy-41so.onrender.com`)
+    fetch(\`https://proxy-41so.onrender.com\`)
       .then(() => console.log('⏰ Keep-alive ping sent'))
       .catch(err => console.log('Ping failed:', err.message));
-  }, 10 * 60 * 1000); // 10 minutes
+  }, 10 * 60 * 1000);
 });
