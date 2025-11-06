@@ -1,17 +1,11 @@
 {
   "name": "rainbow-proxy",
   "version": "1.0.0",
-  "description": "Rainbow Proxy Server",
   "main": "server.js",
-  "scripts": {
-    "start": "node server.js"
-  },
+  "scripts": { "start": "node server.js" },
   "dependencies": {
     "express": "^4.18.2",
-    "http-proxy-middleware": "^2.0.6",
-    "node-fetch": "^3.3.2"
+    "http-proxy-middleware": "^2.0.6"
   },
-  "engines": {
-    "node": "18.x"
-  }
+  "engines": { "node": "18.x" }
 }
