@@ -420,7 +420,9 @@ app.get('/proxy', requireAuth, async (req, res) => {
     const response = await fetch(validUrl, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Referer': validUrl
       },
       redirect: 'follow',
       timeout: 10000 // 10 second timeout
@@ -428,9 +430,17 @@ app.get('/proxy', requireAuth, async (req, res) => {
 
     const contentType = response.headers.get('content-type') || '';
     
+    // Remove CSP headers that block content
+    res.removeHeader('Content-Security-Policy');
+    res.removeHeader('Content-Security-Policy-Report-Only');
+    res.removeHeader('X-Frame-Options');
+    res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+    
     if (!contentType.includes('text/html')) {
       const buffer = await response.buffer();
       res.set('Content-Type', contentType);
+      // Set permissive CORS for resources
+      res.set('Access-Control-Allow-Origin', '*');
       return res.send(buffer);
     }
 
@@ -491,19 +501,49 @@ app.get('/proxy', requireAuth, async (req, res) => {
     const antiBreakout = document.createElement('script');
     antiBreakout.textContent = `
       (function() {
+        console.log('🌈 Rainbow Proxy injected');
+        
+        // Intercept fetch API
+        const originalFetch = window.fetch;
+        window.fetch = function(url, options) {
+          if (typeof url === 'string' && (url.startsWith('http://') || url.startsWith('https://'))) {
+            if (!url.includes('/proxy?url=')) {
+              console.log('Proxying fetch:', url);
+              url = '/proxy?url=' + encodeURIComponent(url);
+            }
+          }
+          return originalFetch(url, options);
+        };
+        
+        // Intercept XMLHttpRequest
+        const originalOpen = XMLHttpRequest.prototype.open;
+        XMLHttpRequest.prototype.open = function(method, url, ...args) {
+          if (typeof url === 'string' && (url.startsWith('http://') || url.startsWith('https://'))) {
+            if (!url.includes('/proxy?url=')) {
+              console.log('Proxying XHR:', url);
+              url = '/proxy?url=' + encodeURIComponent(url);
+            }
+          }
+          return originalOpen.call(this, method, url, ...args);
+        };
+        
+        // Override frame busting
         Object.defineProperty(window, 'top', {
           get: function() { return window.self; },
-          set: function() {}
+          set: function() {},
+          configurable: false
         });
         Object.defineProperty(window, 'parent', {
           get: function() { return window.self; },
-          set: function() {}
+          set: function() {},
+          configurable: false
         });
         Object.defineProperty(window, 'frameElement', {
-          get: function() { return null; }
+          get: function() { return null; },
+          configurable: false
         });
         
-        const originalOpen = window.open;
+        // Block window.open
         window.open = function(url, target, features) {
           if (!url) return null;
           if (url && url.startsWith('http')) {
@@ -513,6 +553,35 @@ app.get('/proxy', requireAuth, async (req, res) => {
           return null;
         };
         
+        // Fix all iframes
+        const observer = new MutationObserver(function(mutations) {
+          document.querySelectorAll('iframe').forEach(function(iframe) {
+            const src = iframe.getAttribute('src');
+            if (src && src.startsWith('http') && !src.includes('/proxy?url=')) {
+              console.log('Proxying iframe:', src);
+              iframe.setAttribute('src', '/proxy?url=' + encodeURIComponent(src));
+            }
+            iframe.removeAttribute('sandbox');
+          });
+        });
+        
+        if (document.body) {
+          observer.observe(document.body, { childList: true, subtree: true, attributes: true });
+        }
+        
+        // Initial iframe fix
+        setTimeout(function() {
+          document.querySelectorAll('iframe').forEach(function(iframe) {
+            const src = iframe.getAttribute('src');
+            if (src && src.startsWith('http') && !src.includes('/proxy?url=')) {
+              console.log('Proxying iframe:', src);
+              iframe.setAttribute('src', '/proxy?url=' + encodeURIComponent(src));
+            }
+            iframe.removeAttribute('sandbox');
+          });
+        }, 100);
+        
+        // Intercept link clicks
         document.addEventListener('click', function(e) {
           let target = e.target;
           while (target && target.tagName !== 'A') {
@@ -525,13 +594,15 @@ app.get('/proxy', requireAuth, async (req, res) => {
               if (!href.includes('/proxy?url=')) {
                 e.preventDefault();
                 e.stopPropagation();
-                e.stopImmediatePropagation();
+                console.log('Proxying link:', href);
                 window.location.href = '/proxy?url=' + encodeURIComponent(href);
                 return false;
               }
             }
           }
         }, true);
+        
+        console.log('🌈 Rainbow Proxy ready');
       })();
     `;
     
@@ -552,6 +623,16 @@ app.get('/proxy', requireAuth, async (req, res) => {
 
     document.querySelectorAll('link[href]').forEach(el => {
       el.setAttribute('href', rewriteUrl(el.getAttribute('href')));
+    });
+
+    // Rewrite iframe sources
+    document.querySelectorAll('iframe[src]').forEach(el => {
+      const src = el.getAttribute('src');
+      if (src && !src.startsWith('data:') && !src.startsWith('javascript:')) {
+        el.setAttribute('src', rewriteUrl(src));
+      }
+      // Remove sandbox attribute to allow content to load
+      el.removeAttribute('sandbox');
     });
 
     document.querySelectorAll('style').forEach(el => {
