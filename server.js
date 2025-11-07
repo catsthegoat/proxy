@@ -3,28 +3,41 @@ const fetch = require('node-fetch');
 const { JSDOM } = require('jsdom');
 const session = require('express-session');
 const app = express();
+
+// CRITICAL: Render uses PORT environment variable
 const PORT = process.env.PORT || 3000;
 
 // CHANGE THIS PASSWORD TO YOUR OWN!
 const ACCESS_CODE = process.env.PROXY_PASSWORD || 'rainbow123';
 
-// Session middleware for password protection
-app.use(session({
-  secret: 'rainbow-proxy-secret-key-change-this',
-  resave: false,
-  saveUninitialized: false,
-  cookie: { maxAge: 24 * 60 * 60 * 1000 } // 24 hours
-}));
-
-// Parse form data
+// Parse JSON and form data
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Allow all CORS
+// Session middleware - configured for production
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'rainbow-proxy-secret-key-change-this',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { 
+    maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    secure: process.env.NODE_ENV === 'production', // HTTPS only in production
+    httpOnly: true,
+    sameSite: 'lax'
+  }
+}));
+
+// CORS headers
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', '*');
   res.setHeader('Access-Control-Allow-Headers', '*');
   next();
+});
+
+// Health check endpoint for Render
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
 // Middleware to check if user is authenticated
@@ -105,7 +118,7 @@ app.get('/logout', (req, res) => {
   res.redirect('/login');
 });
 
-// Main page (protected) - FIXED Z-INDEX AND CURSOR ISSUES
+// Main page (protected)
 app.get('/', requireAuth, (req, res) => {
   const errorMsg = req.query.error === 'invalid-url' ? 
     '<div class="error-banner">⚠️ Invalid URL detected. Please enter a proper website address below.</div>' : '';
@@ -122,10 +135,7 @@ app.get('/', requireAuth, (req, res) => {
 body{font-family:'Inter',sans-serif;background:#000;color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:none;transition:background 0.3s,color 0.3s;}
 body.light-mode{background:#fff;color:#000;}
 
-/* FIXED: Trail canvas z-index */
 #trail{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;}
-
-/* FIXED: Container z-index to be above trail */
 .container{text-align:center;padding:40px;position:relative;z-index:100;}
 
 h1{font-size:48px;margin-bottom:30px;background:linear-gradient(90deg,#fff 0%,#ff0066 25%,#00ff99 50%,#3399ff 75%,#fff 100%);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:flow 4s linear infinite;}
@@ -153,7 +163,6 @@ body.light-mode .secret{color:#fff;background:#fff;}
 .secret:hover{color:rgba(255,255,255,0.4);background:rgba(255,255,255,0.05);}
 body.light-mode .secret:hover{color:rgba(0,0,0,0.4);background:rgba(0,0,0,0.05);}
 
-/* FIXED: Custom cursor */
 .cursor{position:fixed;width:20px;height:20px;border:2px solid rgba(255,255,255,0.8);border-radius:50%;pointer-events:none;z-index:10000;transform:translate(-50%,-50%);transition:width 0.2s,height 0.2s;}
 body.light-mode .cursor{border-color:rgba(0,0,0,0.8);}
 
@@ -221,7 +230,6 @@ function toggleMode(){
   document.body.classList.toggle('light-mode',lightMode);
 }
 
-// FIXED: Trail animation
 const canvas=document.getElementById('trail');
 const ctx=canvas.getContext('2d');
 const cursor=document.querySelector('.cursor');
@@ -274,7 +282,6 @@ document.addEventListener('mousemove',e=>{
 function animate(){
   ctx.clearRect(0,0,canvas.width,canvas.height);
   
-  // Smooth cursor movement
   cursorX+=(mouseX-cursorX)*0.3;
   cursorY+=(mouseY-cursorY)*0.3;
   cursor.style.left=cursorX+'px';
@@ -325,17 +332,14 @@ document.getElementById('url').addEventListener('keypress',e=>{
 </html>`);
 });
 
-// Catch-all proxy for paths (when clicking links on proxied sites)
+// Catch-all proxy for paths
 app.get('*', requireAuth, async (req, res, next) => {
-  // Skip static routes
-  if (req.path === '/' || req.path === '/login' || req.path === '/logout' || req.path.startsWith('/proxy')) {
+  if (req.path === '/' || req.path === '/login' || req.path === '/logout' || req.path === '/health' || req.path.startsWith('/proxy')) {
     return next();
   }
   
-  // If we have a referer from a proxied page, proxy this request too
   const referer = req.get('referer');
   if (referer && referer.includes('/proxy?url=')) {
-    // Extract the original base URL from referer
     const urlMatch = referer.match(/url=([^&]+)/);
     if (urlMatch) {
       try {
@@ -386,18 +390,15 @@ app.get('/proxy', requireAuth, async (req, res) => {
       validUrl = 'https://' + validUrl;
     }
     
-    try {
-      new URL(validUrl);
-    } catch (e) {
-      throw new Error('Invalid URL format.');
-    }
+    new URL(validUrl); // Validate URL
     
     const response = await fetch(validUrl, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
       },
-      redirect: 'follow'
+      redirect: 'follow',
+      timeout: 10000 // 10 second timeout
     });
 
     const contentType = response.headers.get('content-type') || '';
@@ -433,7 +434,7 @@ app.get('/proxy', requireAuth, async (req, res) => {
           absolute = validUrl.split('?')[0] + originalUrl;
         }
         else if (originalUrl.startsWith('#')) {
-          return originalUrl; // Keep hash links as-is
+          return originalUrl;
         }
         else {
           absolute = new URL(originalUrl, fullBase).href;
@@ -447,7 +448,6 @@ app.get('/proxy', requireAuth, async (req, res) => {
     const dom = new JSDOM(html);
     const document = dom.window.document;
 
-    // Add navigation buttons and anti-breakout script
     const navBar = document.createElement('div');
     navBar.innerHTML = `
       <div style="position:fixed;top:10px;left:10px;z-index:999999;display:flex;gap:10px;">
@@ -463,11 +463,9 @@ app.get('/proxy', requireAuth, async (req, res) => {
       </div>
     `;
     
-    // Inject anti-breakout script (AGGRESSIVE VERSION FOR POKI)
     const antiBreakout = document.createElement('script');
     antiBreakout.textContent = `
       (function() {
-        // Block iframe detection - AGGRESSIVE
         Object.defineProperty(window, 'top', {
           get: function() { return window.self; },
           set: function() {}
@@ -480,29 +478,6 @@ app.get('/proxy', requireAuth, async (req, res) => {
           get: function() { return null; }
         });
         
-        // Fake location to make it think we're on poki.com
-        try {
-          Object.defineProperty(window, 'location', {
-            get: function() {
-              return {
-                href: window.location.href,
-                hostname: new URL(window.location.href.includes('url=') ? decodeURIComponent(window.location.href.split('url=')[1].split('&')[0]) : window.location.href).hostname,
-                protocol: 'https:',
-                host: new URL(window.location.href.includes('url=') ? decodeURIComponent(window.location.href.split('url=')[1].split('&')[0]) : window.location.href).host,
-                origin: new URL(window.location.href.includes('url=') ? decodeURIComponent(window.location.href.split('url=')[1].split('&')[0]) : window.location.href).origin,
-                pathname: window.location.pathname,
-                search: window.location.search,
-                hash: window.location.hash,
-                assign: function(url) { window.location.href = '/proxy?url=' + encodeURIComponent(url); },
-                replace: function(url) { window.location.href = '/proxy?url=' + encodeURIComponent(url); },
-                reload: function() { window.location.reload(); },
-                toString: function() { return this.href; }
-              };
-            }
-          });
-        } catch(e) {}
-        
-        // Block ALL forms of window.open
         const originalOpen = window.open;
         window.open = function(url, target, features) {
           if (!url) return null;
@@ -510,36 +485,9 @@ app.get('/proxy', requireAuth, async (req, res) => {
             window.location.href = '/proxy?url=' + encodeURIComponent(url);
             return null;
           }
-          if (target === '_blank' || target === '_new' || !target) {
-            window.location.href = url;
-            return null;
-          }
-          return null; // Block it entirely
+          return null;
         };
         
-        // Block location changes that break out
-        const originalAssign = window.location.assign;
-        const originalReplace = window.location.replace;
-        
-        try {
-          window.location.assign = function(url) {
-            if (url && url.startsWith('http')) {
-              window.location.href = '/proxy?url=' + encodeURIComponent(url);
-            } else {
-              originalAssign.call(window.location, url);
-            }
-          };
-          
-          window.location.replace = function(url) {
-            if (url && url.startsWith('http')) {
-              window.location.href = '/proxy?url=' + encodeURIComponent(url);
-            } else {
-              originalReplace.call(window.location, url);
-            }
-          };
-        } catch(e) {}
-        
-        // Intercept all link clicks
         document.addEventListener('click', function(e) {
           let target = e.target;
           while (target && target.tagName !== 'A') {
@@ -559,52 +507,6 @@ app.get('/proxy', requireAuth, async (req, res) => {
             }
           }
         }, true);
-        
-        // Block target="_blank" on all links
-        const observer = new MutationObserver(function(mutations) {
-          document.querySelectorAll('a[target="_blank"], a[target="_new"]').forEach(function(link) {
-            link.removeAttribute('target');
-            link.addEventListener('click', function(e) {
-              const href = this.getAttribute('href');
-              if (href && (href.startsWith('http://') || href.startsWith('https://'))) {
-                if (!href.includes('/proxy?url=')) {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  window.location.href = '/proxy?url=' + encodeURIComponent(href);
-                }
-              }
-            });
-          });
-        });
-        
-        if (document.body) {
-          observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['target'] });
-        }
-        
-        // Initial cleanup
-        setTimeout(function() {
-          document.querySelectorAll('a[target="_blank"], a[target="_new"]').forEach(function(link) {
-            link.removeAttribute('target');
-          });
-        }, 100);
-        
-        // Block setTimeout/setInterval redirects
-        const originalSetTimeout = window.setTimeout;
-        const originalSetInterval = window.setInterval;
-        
-        window.setTimeout = function(fn, delay) {
-          if (typeof fn === 'string' && (fn.includes('location') || fn.includes('window.open'))) {
-            return; // Block it
-          }
-          return originalSetTimeout.apply(this, arguments);
-        };
-        
-        window.setInterval = function(fn, delay) {
-          if (typeof fn === 'string' && (fn.includes('location') || fn.includes('window.open'))) {
-            return; // Block it
-          }
-          return originalSetInterval.apply(this, arguments);
-        };
       })();
     `;
     
@@ -627,7 +529,6 @@ app.get('/proxy', requireAuth, async (req, res) => {
       el.setAttribute('href', rewriteUrl(el.getAttribute('href')));
     });
 
-    // Also rewrite in inline styles and scripts
     document.querySelectorAll('style').forEach(el => {
       let content = el.textContent;
       content = content.replace(/url\(['"]?(https?:\/\/[^'")\s]+)['"]?\)/gi, (match, url) => {
@@ -663,7 +564,4 @@ app.get('/proxy', requireAuth, async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log("🌈 Rainbow Proxy running on port " + PORT);
-  console.log("🔒 Password: " + ACCESS_CODE);
-});
+// Error handling middleware
