@@ -204,10 +204,10 @@ ${errorMsg}
 <button onclick="go()">GO</button>
 <div class="status">Real proxy server running ✓</div>
 <div class="quick-links">
+  <span class="quick-link" onclick="fillUrl('poki.com')">🎯 Poki</span>
   <span class="quick-link" onclick="fillUrl('coolmathgames.com')">🎮 Coolmath Games</span>
   <span class="quick-link" onclick="fillUrl('armorgames.com')">🛡️ Armor Games</span>
-  <span class="quick-link" onclick="fillUrl('crazygames.com')">🕹️ Crazy Games</span>
-  <span class="quick-link" onclick="fillUrl('y8.com')">🎯 Y8 Games</span>
+  <span class="quick-link" onclick="fillUrl('y8.com')">🕹️ Y8 Games</span>
   <span class="quick-link" onclick="fillUrl('reddit.com')">💬 Reddit</span>
 </div>
 <div class="warning">⚠️ Note: Some sites (Google, YouTube, banking) may not work due to security features. Best for: gaming sites, forums, social media.</div>
@@ -414,7 +414,7 @@ app.get('/proxy', requireAuth, async (req, res) => {
     const fullBase = validUrl.substring(0, validUrl.lastIndexOf('/') + 1);
 
     const rewriteUrl = (originalUrl) => {
-      if (!originalUrl || originalUrl === '#' || originalUrl.startsWith('data:') || originalUrl.startsWith('javascript:')) {
+      if (!originalUrl || originalUrl === '#' || originalUrl === '/' || originalUrl.startsWith('data:') || originalUrl.startsWith('javascript:') || originalUrl.startsWith('mailto:') || originalUrl.startsWith('tel:')) {
         return originalUrl;
       }
       
@@ -428,6 +428,12 @@ app.get('/proxy', requireAuth, async (req, res) => {
         }
         else if (originalUrl.startsWith('/')) {
           absolute = baseUrl + originalUrl;
+        }
+        else if (originalUrl.startsWith('?')) {
+          absolute = validUrl.split('?')[0] + originalUrl;
+        }
+        else if (originalUrl.startsWith('#')) {
+          return originalUrl; // Keep hash links as-is
         }
         else {
           absolute = new URL(originalUrl, fullBase).href;
@@ -457,26 +463,147 @@ app.get('/proxy', requireAuth, async (req, res) => {
       </div>
     `;
     
-    // Inject anti-breakout script
+    // Inject anti-breakout script (AGGRESSIVE VERSION FOR POKI)
     const antiBreakout = document.createElement('script');
     antiBreakout.textContent = `
       (function() {
-        // Block iframe detection
+        // Block iframe detection - AGGRESSIVE
         Object.defineProperty(window, 'top', {
-          get: function() { return window.self; }
+          get: function() { return window.self; },
+          set: function() {}
         });
         Object.defineProperty(window, 'parent', {
-          get: function() { return window.self; }
+          get: function() { return window.self; },
+          set: function() {}
+        });
+        Object.defineProperty(window, 'frameElement', {
+          get: function() { return null; }
         });
         
-        // Block window.open to new tabs
+        // Fake location to make it think we're on poki.com
+        try {
+          Object.defineProperty(window, 'location', {
+            get: function() {
+              return {
+                href: window.location.href,
+                hostname: new URL(window.location.href.includes('url=') ? decodeURIComponent(window.location.href.split('url=')[1].split('&')[0]) : window.location.href).hostname,
+                protocol: 'https:',
+                host: new URL(window.location.href.includes('url=') ? decodeURIComponent(window.location.href.split('url=')[1].split('&')[0]) : window.location.href).host,
+                origin: new URL(window.location.href.includes('url=') ? decodeURIComponent(window.location.href.split('url=')[1].split('&')[0]) : window.location.href).origin,
+                pathname: window.location.pathname,
+                search: window.location.search,
+                hash: window.location.hash,
+                assign: function(url) { window.location.href = '/proxy?url=' + encodeURIComponent(url); },
+                replace: function(url) { window.location.href = '/proxy?url=' + encodeURIComponent(url); },
+                reload: function() { window.location.reload(); },
+                toString: function() { return this.href; }
+              };
+            }
+          });
+        } catch(e) {}
+        
+        // Block ALL forms of window.open
         const originalOpen = window.open;
         window.open = function(url, target, features) {
-          if (target === '_blank' || !target) {
+          if (!url) return null;
+          if (url && url.startsWith('http')) {
+            window.location.href = '/proxy?url=' + encodeURIComponent(url);
+            return null;
+          }
+          if (target === '_blank' || target === '_new' || !target) {
             window.location.href = url;
             return null;
           }
-          return originalOpen.call(window, url, target, features);
+          return null; // Block it entirely
+        };
+        
+        // Block location changes that break out
+        const originalAssign = window.location.assign;
+        const originalReplace = window.location.replace;
+        
+        try {
+          window.location.assign = function(url) {
+            if (url && url.startsWith('http')) {
+              window.location.href = '/proxy?url=' + encodeURIComponent(url);
+            } else {
+              originalAssign.call(window.location, url);
+            }
+          };
+          
+          window.location.replace = function(url) {
+            if (url && url.startsWith('http')) {
+              window.location.href = '/proxy?url=' + encodeURIComponent(url);
+            } else {
+              originalReplace.call(window.location, url);
+            }
+          };
+        } catch(e) {}
+        
+        // Intercept all link clicks
+        document.addEventListener('click', function(e) {
+          let target = e.target;
+          while (target && target.tagName !== 'A') {
+            target = target.parentElement;
+          }
+          
+          if (target && target.tagName === 'A') {
+            const href = target.getAttribute('href');
+            if (href && (href.startsWith('http://') || href.startsWith('https://'))) {
+              if (!href.includes('/proxy?url=')) {
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+                window.location.href = '/proxy?url=' + encodeURIComponent(href);
+                return false;
+              }
+            }
+          }
+        }, true);
+        
+        // Block target="_blank" on all links
+        const observer = new MutationObserver(function(mutations) {
+          document.querySelectorAll('a[target="_blank"], a[target="_new"]').forEach(function(link) {
+            link.removeAttribute('target');
+            link.addEventListener('click', function(e) {
+              const href = this.getAttribute('href');
+              if (href && (href.startsWith('http://') || href.startsWith('https://'))) {
+                if (!href.includes('/proxy?url=')) {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  window.location.href = '/proxy?url=' + encodeURIComponent(href);
+                }
+              }
+            });
+          });
+        });
+        
+        if (document.body) {
+          observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['target'] });
+        }
+        
+        // Initial cleanup
+        setTimeout(function() {
+          document.querySelectorAll('a[target="_blank"], a[target="_new"]').forEach(function(link) {
+            link.removeAttribute('target');
+          });
+        }, 100);
+        
+        // Block setTimeout/setInterval redirects
+        const originalSetTimeout = window.setTimeout;
+        const originalSetInterval = window.setInterval;
+        
+        window.setTimeout = function(fn, delay) {
+          if (typeof fn === 'string' && (fn.includes('location') || fn.includes('window.open'))) {
+            return; // Block it
+          }
+          return originalSetTimeout.apply(this, arguments);
+        };
+        
+        window.setInterval = function(fn, delay) {
+          if (typeof fn === 'string' && (fn.includes('location') || fn.includes('window.open'))) {
+            return; // Block it
+          }
+          return originalSetInterval.apply(this, arguments);
         };
       })();
     `;
