@@ -396,6 +396,25 @@ app.get('/p/:encodedUrl(*)', requireAuth, async (req, res) => {
   }
 });
 
+// CATCH-ALL ROUTE - handles relative paths like /0-run-3
+app.get('*', requireAuth, (req, res, next) => {
+  // Skip if it's a known route
+  if (req.path === '/' || req.path === '/login' || req.path === '/logout' || req.path === '/health' || req.path.startsWith('/p/')) {
+    return next();
+  }
+
+  // If we have a base URL in session, proxy the relative path
+  if (req.session.proxyBase) {
+    const targetUrl = req.session.proxyBase + req.path + (req.url.includes('?') ? req.url.substring(req.url.indexOf('?')) : '');
+    console.log('Catching relative path:', req.path, '->', targetUrl);
+    const encoded = encodeURIComponent(Buffer.from(targetUrl).toString('base64'));
+    return res.redirect(`/p/${encoded}`);
+  }
+
+  // Otherwise redirect to home
+  res.redirect('/');
+});
+
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🌈 Rainbow Proxy on port ${PORT}`);
   console.log(`🔒 Password: ${ACCESS_CODE}`);
