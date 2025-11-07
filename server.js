@@ -237,10 +237,10 @@ ${errorMsg}
 <br><br>
 <button onclick="go()">GO</button>
 <div class="quick-links">
-  <span class="quick-link" onclick="fillUrl('instagram.com')">📷 Instagram</span>
-  <span class="quick-link" onclick="fillUrl('tiktok.com')">🎵 TikTok</span>
-  <span class="quick-link" onclick="fillUrl('reddit.com')">💬 Reddit</span>
-  <span class="quick-link" onclick="fillUrl('coolmathgames.com')">🎮 Coolmath</span>
+  <span class="quick-link" onclick="document.getElementById('url').value='instagram.com';go();">📷 Instagram</span>
+  <span class="quick-link" onclick="document.getElementById('url').value='tiktok.com';go();">🎵 TikTok</span>
+  <span class="quick-link" onclick="document.getElementById('url').value='reddit.com';go();">💬 Reddit</span>
+  <span class="quick-link" onclick="document.getElementById('url').value='coolmathgames.com';go();">🎮 Coolmath</span>
 </div>
 <div class="status">Ultra proxy active ✓</div>
 <div class="warning">⚠️ Some sites may not work perfectly due to advanced security.</div>
