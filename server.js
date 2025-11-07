@@ -205,8 +205,9 @@ ${errorMsg}
 <div class="status">Real proxy server running ✓</div>
 <div class="quick-links">
   <span class="quick-link" onclick="fillUrl('coolmathgames.com')">🎮 Coolmath Games</span>
-  <span class="quick-link" onclick="fillUrl('poki.com')">🎯 Poki</span>
+  <span class="quick-link" onclick="fillUrl('armorgames.com')">🛡️ Armor Games</span>
   <span class="quick-link" onclick="fillUrl('crazygames.com')">🕹️ Crazy Games</span>
+  <span class="quick-link" onclick="fillUrl('y8.com')">🎯 Y8 Games</span>
   <span class="quick-link" onclick="fillUrl('reddit.com')">💬 Reddit</span>
 </div>
 <div class="warning">⚠️ Note: Some sites (Google, YouTube, banking) may not work due to security features. Best for: gaming sites, forums, social media.</div>
@@ -440,7 +441,7 @@ app.get('/proxy', requireAuth, async (req, res) => {
     const dom = new JSDOM(html);
     const document = dom.window.document;
 
-    // Add navigation buttons
+    // Add navigation buttons and anti-breakout script
     const navBar = document.createElement('div');
     navBar.innerHTML = `
       <div style="position:fixed;top:10px;left:10px;z-index:999999;display:flex;gap:10px;">
@@ -455,6 +456,34 @@ app.get('/proxy', requireAuth, async (req, res) => {
         </a>
       </div>
     `;
+    
+    // Inject anti-breakout script
+    const antiBreakout = document.createElement('script');
+    antiBreakout.textContent = `
+      (function() {
+        // Block iframe detection
+        Object.defineProperty(window, 'top', {
+          get: function() { return window.self; }
+        });
+        Object.defineProperty(window, 'parent', {
+          get: function() { return window.self; }
+        });
+        
+        // Block window.open to new tabs
+        const originalOpen = window.open;
+        window.open = function(url, target, features) {
+          if (target === '_blank' || !target) {
+            window.location.href = url;
+            return null;
+          }
+          return originalOpen.call(window, url, target, features);
+        };
+      })();
+    `;
+    
+    if (document.head) {
+      document.head.insertBefore(antiBreakout, document.head.firstChild);
+    }
     if (document.body) {
       document.body.insertBefore(navBar, document.body.firstChild);
     }
