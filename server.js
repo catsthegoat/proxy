@@ -105,7 +105,7 @@ app.get('/logout', (req, res) => {
   res.redirect('/login');
 });
 
-// Main page (protected) - FIXED LINE BELOW
+// Main page (protected) - FIXED Z-INDEX AND CURSOR ISSUES
 app.get('/', requireAuth, (req, res) => {
   const errorMsg = req.query.error === 'invalid-url' ? 
     '<div class="error-banner">⚠️ Invalid URL detected. Please enter a proper website address below.</div>' : '';
@@ -119,52 +119,27 @@ app.get('/', requireAuth, (req, res) => {
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:'Inter',sans-serif;background:#000;color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden;transition:background 0.3s,color 0.3s;}
+body{font-family:'Inter',sans-serif;background:#000;color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:none;transition:background 0.3s,color 0.3s;}
 body.light-mode{background:#fff;color:#000;}
-#trail{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1;}
-.container{text-align:center;padding:40px;position:relative;z-index:10;}
+
+/* FIXED: Trail canvas z-index */
+#trail{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;}
+
+/* FIXED: Container z-index to be above trail */
+.container{text-align:center;padding:40px;position:relative;z-index:100;}
 
 h1{font-size:48px;margin-bottom:30px;background:linear-gradient(90deg,#fff 0%,#ff0066 25%,#00ff99 50%,#3399ff 75%,#fff 100%);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:flow 4s linear infinite;}
 body.light-mode h1{background:linear-gradient(90deg,#000 0%,#ff0066 25%,#00cc88 50%,#3366ff 75%,#000 100%);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:flow 4s linear infinite;}
 @keyframes flow{to{background-position:200% center;}}
 
-.input-wrapper { position: relative; display: inline-block; }
-.input-wrapper::before {
-  content: "";
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  border-radius: 8px;
-  border: 1px solid rgba(255,255,255,0.4);
-  background: rgba(255,255,255,0.03);
-  backdrop-filter: blur(15px);
-  box-shadow: 0 0 20px rgba(255,255,255,0.3), inset 0 0 20px rgba(255,255,255,0.05);
-  z-index: 0;
-  pointer-events: none;
-}
-body.light-mode .input-wrapper::before {
-  border: 1px solid rgba(0,0,0,0.3);
-  background: rgba(0,0,0,0.02);
-  box-shadow: 0 0 20px rgba(0,0,0,0.2), inset 0 0 20px rgba(0,0,0,0.05);
-}
+.input-wrapper{position:relative;display:inline-block;}
+.input-wrapper::before{content:"";position:absolute;top:0;left:0;right:0;bottom:0;border-radius:8px;border:1px solid rgba(255,255,255,0.4);background:rgba(255,255,255,0.03);backdrop-filter:blur(15px);box-shadow:0 0 20px rgba(255,255,255,0.3),inset 0 0 20px rgba(255,255,255,0.05);z-index:-1;pointer-events:none;}
+body.light-mode .input-wrapper::before{border:1px solid rgba(0,0,0,0.3);background:rgba(0,0,0,0.02);box-shadow:0 0 20px rgba(0,0,0,0.2),inset 0 0 20px rgba(0,0,0,0.05);}
 
-.input-wrapper input {
-  position: relative;
-  width: 400px;
-  max-width: 90%;
-  padding: 12px 20px;
-  margin: 20px 0 40px 0;
-  border-radius: 8px;
-  border: none;
-  background: transparent;
-  color: #fff;
-  font-size: 14px;
-  text-align: center;
-  z-index: 1;
-  outline: none;
-}
-body.light-mode .input-wrapper input { color:#000; }
-.input-wrapper input::placeholder { color: rgba(255,255,255,0.4); }
-body.light-mode .input-wrapper input::placeholder { color: rgba(0,0,0,0.4); }
+.input-wrapper input{position:relative;width:400px;max-width:90%;padding:12px 20px;margin:20px 0 40px 0;border-radius:8px;border:none;background:transparent;color:#fff;font-size:14px;text-align:center;z-index:1;outline:none;}
+body.light-mode .input-wrapper input{color:#000;}
+.input-wrapper input::placeholder{color:rgba(255,255,255,0.4);}
+body.light-mode .input-wrapper input::placeholder{color:rgba(0,0,0,0.4);}
 
 button{padding:15px 40px;background:#fff;color:#000;border:none;border-radius:12px;font-weight:700;font-size:14px;text-transform:uppercase;transition:0.3s;cursor:pointer;}
 body.light-mode button{background:#000;color:#fff;}
@@ -173,17 +148,21 @@ body.light-mode button:hover{box-shadow:0 10px 30px rgba(0,0,0,0.3);}
 
 .status{margin-top:20px;font-size:14px;color:rgba(255,255,255,0.6);}
 body.light-mode .status{color:rgba(0,0,0,0.6);}
-.secret{margin-top:10px;font-size:12px;color:#000;background:#000;padding:5px 15px;border-radius:8px;transition:all 0.5s ease;display:inline-block;user-select:none;position:relative;z-index:100;}
+.secret{margin-top:10px;font-size:12px;color:#000;background:#000;padding:5px 15px;border-radius:8px;transition:all 0.5s ease;display:inline-block;user-select:none;cursor:pointer;}
 body.light-mode .secret{color:#fff;background:#fff;}
 .secret:hover{color:rgba(255,255,255,0.4);background:rgba(255,255,255,0.05);}
 body.light-mode .secret:hover{color:rgba(0,0,0,0.4);background:rgba(0,0,0,0.05);}
 
-.mode-toggle{position:fixed;top:20px;right:20px;padding:10px 20px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:10px;font-size:12px;transition:0.3s;z-index:101;backdrop-filter:blur(10px);cursor:pointer;}
+/* FIXED: Custom cursor */
+.cursor{position:fixed;width:20px;height:20px;border:2px solid rgba(255,255,255,0.8);border-radius:50%;pointer-events:none;z-index:10000;transform:translate(-50%,-50%);transition:width 0.2s,height 0.2s;}
+body.light-mode .cursor{border-color:rgba(0,0,0,0.8);}
+
+.mode-toggle{position:fixed;top:20px;right:20px;padding:10px 20px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:10px;font-size:12px;transition:0.3s;z-index:200;backdrop-filter:blur(10px);cursor:pointer;}
 body.light-mode .mode-toggle{background:rgba(0,0,0,0.1);border:1px solid rgba(0,0,0,0.2);}
 .mode-toggle:hover{background:rgba(255,255,255,0.2);transform:scale(1.05);}
 body.light-mode .mode-toggle:hover{background:rgba(0,0,0,0.2);}
 
-.logout-btn{position:fixed;top:20px;left:20px;padding:10px 20px;background:rgba(255,0,0,0.2);border:1px solid rgba(255,0,0,0.3);border-radius:10px;font-size:12px;transition:0.3s;z-index:101;backdrop-filter:blur(10px);color:#fff;text-decoration:none;cursor:pointer;}
+.logout-btn{position:fixed;top:20px;left:20px;padding:10px 20px;background:rgba(255,0,0,0.2);border:1px solid rgba(255,0,0,0.3);border-radius:10px;font-size:12px;transition:0.3s;z-index:200;backdrop-filter:blur(10px);color:#fff;text-decoration:none;cursor:pointer;}
 .logout-btn:hover{background:rgba(255,0,0,0.3);transform:scale(1.05);}
 
 .loading-screen{position:fixed;top:0;left:0;width:100%;height:100%;background:#000;display:flex;align-items:center;justify-content:center;z-index:10000;opacity:1;transition:opacity 0.5s;}
@@ -212,6 +191,7 @@ body.light-mode .quick-link:hover{background:rgba(0,0,0,0.1);}
   </div>
 </div>
 <canvas id="trail"></canvas>
+<div class="cursor"></div>
 <a href="/logout" class="logout-btn">🔒 Logout</a>
 <div class="mode-toggle" onclick="toggleMode()">⚫ / ⚪</div>
 <div class="container">
@@ -240,8 +220,10 @@ function toggleMode(){
   document.body.classList.toggle('light-mode',lightMode);
 }
 
+// FIXED: Trail animation
 const canvas=document.getElementById('trail');
 const ctx=canvas.getContext('2d');
+const cursor=document.querySelector('.cursor');
 canvas.width=window.innerWidth;
 canvas.height=window.innerHeight;
 
@@ -275,6 +257,9 @@ class Particle{
   }
 }
 
+let cursorX=mouseX;
+let cursorY=mouseY;
+
 document.addEventListener('mousemove',e=>{
   mouseX=e.clientX;
   mouseY=e.clientY;
@@ -287,6 +272,12 @@ document.addEventListener('mousemove',e=>{
 
 function animate(){
   ctx.clearRect(0,0,canvas.width,canvas.height);
+  
+  // Smooth cursor movement
+  cursorX+=(mouseX-cursorX)*0.3;
+  cursorY+=(mouseY-cursorY)*0.3;
+  cursor.style.left=cursorX+'px';
+  cursor.style.top=cursorY+'px';
   
   for(let i=particles.length-1;i>=0;i--){
     particles[i].update();
@@ -313,7 +304,7 @@ function go(){
   let url=document.getElementById('url').value.trim();
   if(!url)return;
   
-  url = url.replace(/^[\/\\]+/, '');
+  url = url.replace(/^[\\/\\\\]+/, '');
   
   if(!url.match(/^https?:\\/\\//))url='https://'+url;
   
@@ -331,14 +322,6 @@ document.getElementById('url').addEventListener('keypress',e=>{
 </script>
 </body>
 </html>`);
-});
-
-// Catch-all route for malformed URLs - redirect to home
-app.get('*', requireAuth, (req, res, next) => {
-  if (!req.path.startsWith('/proxy') && req.path !== '/' && req.path !== '/login' && req.path !== '/logout') {
-    return res.redirect('/?error=invalid-url');
-  }
-  next();
 });
 
 // Proxy endpoint
@@ -369,7 +352,7 @@ app.get('/proxy', requireAuth, async (req, res) => {
 
   try {
     let validUrl = targetUrl;
-    validUrl = validUrl.replace(/^[\/\\]+/, '');
+    validUrl = validUrl.replace(/^[\\/\\\\]+/, '');
     
     if (!validUrl.match(/^https?:\/\//)) {
       validUrl = 'https://' + validUrl;
@@ -381,7 +364,7 @@ app.get('/proxy', requireAuth, async (req, res) => {
       throw new Error('Invalid URL format.');
     }
     
-    const response = await fetch(targetUrl, {
+    const response = await fetch(validUrl, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
@@ -398,9 +381,9 @@ app.get('/proxy', requireAuth, async (req, res) => {
     }
 
     let html = await response.text();
-    const url = new URL(targetUrl);
+    const url = new URL(validUrl);
     const baseUrl = url.origin;
-    const fullBase = targetUrl.substring(0, targetUrl.lastIndexOf('/') + 1);
+    const fullBase = validUrl.substring(0, validUrl.lastIndexOf('/') + 1);
 
     const rewriteUrl = (originalUrl) => {
       if (!originalUrl || originalUrl === '#' || originalUrl.startsWith('data:') || originalUrl.startsWith('javascript:')) {
