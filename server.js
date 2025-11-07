@@ -48,78 +48,96 @@ app.get('/login', (req, res) => {
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:'Inter',sans-serif;background:#000;color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden;}
-.login-container{text-align:center;padding:40px;max-width:400px;}
+body{font-family:'Inter',sans-serif;background:#000;color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden;transition:background 0.3s,color 0.3s;cursor:none;}
+body.light-mode{background:#fff;color:#000;}
+/* Remove the problematic "body *{cursor:none;}" rule */
+button, a, input, .mode-toggle, .logout-btn, .quick-link{cursor:pointer !important;}
+input{cursor:text !important;}
+#trail{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9998;}
+.container{text-align:center;padding:40px;position:relative;z-index:10;transition:opacity 0.3s;}
+.container.hide{opacity:0;pointer-events:none;}
+
 h1{font-size:48px;margin-bottom:30px;background:linear-gradient(90deg,#fff 0%,#ff0066 25%,#00ff99 50%,#3399ff 75%,#fff 100%);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:flow 4s linear infinite;}
+body.light-mode h1{background:linear-gradient(90deg,#000 0%,#ff0066 25%,#00cc88 50%,#3366ff 75%,#000 100%);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:flow 4s linear infinite;}
 @keyframes flow{to{background-position:200% center;}}
-.input-wrapper { position: relative; margin: 20px 0; }
-.input-wrapper input {
-  width: 100%;
-  padding: 15px 20px;
+
+.input-wrapper { position: relative; display: inline-block; }
+.input-wrapper::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
   border-radius: 8px;
-  border: 1px solid rgba(255,255,255,0.3);
-  background: rgba(255,255,255,0.05);
-  color: #fff;
-  font-size: 16px;
-  text-align: center;
-  outline: none;
-  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.4);
+  background: rgba(255,255,255,0.03);
+  backdrop-filter: blur(15px);
+  box-shadow: 0 0 20px rgba(255,255,255,0.3), inset 0 0 20px rgba(255,255,255,0.05);
+  z-index: 0;
+  pointer-events: none;
 }
+body.light-mode .input-wrapper::before {
+  border: 1px solid rgba(0,0,0,0.3);
+  background: rgba(0,0,0,0.02);
+  box-shadow: 0 0 20px rgba(0,0,0,0.2), inset 0 0 20px rgba(0,0,0,0.05);
+}
+
+.input-wrapper input {
+  position: relative;
+  width: 400px;
+  max-width: 90%;
+  padding: 12px 20px;
+  margin: 20px 0 40px 0;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: #fff;
+  font-size: 14px;
+  text-align: center;
+  z-index: 1;
+  outline: none;
+  cursor: text !important;
+}
+body.light-mode .input-wrapper input { color:#000; }
 .input-wrapper input::placeholder { color: rgba(255,255,255,0.4); }
-button{width:100%;padding:15px 40px;background:#fff;color:#000;border:none;border-radius:12px;font-weight:700;cursor:pointer;font-size:14px;text-transform:uppercase;transition:0.3s;margin-top:20px;}
+body.light-mode .input-wrapper input::placeholder { color: rgba(0,0,0,0.4); }
+
+button{padding:15px 40px;background:#fff;color:#000;border:none;border-radius:12px;font-weight:700;font-size:14px;text-transform:uppercase;transition:0.3s;cursor:pointer !important;}
+body.light-mode button{background:#000;color:#fff;}
 button:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(255,255,255,0.3);}
-.error{margin-top:15px;padding:12px;background:rgba(255,0,0,0.2);border:1px solid rgba(255,0,0,0.4);border-radius:8px;font-size:14px;color:#ff6666;}
-.lock-icon{font-size:60px;margin-bottom:20px;opacity:0.8;}
-</style>
-</head>
-<body>
-<div class="login-container">
-<div class="lock-icon">🔒</div>
-<h1>RAINBOW PROXY</h1>
-<form method="POST" action="/login">
-  <div class="input-wrapper">
-    <input type="password" name="password" placeholder="enter access code" autofocus required>
-  </div>
-  <button type="submit">UNLOCK</button>
-</form>
-${error ? '<div class="error">❌ Incorrect access code</div>' : ''}
-</div>
-</body>
-</html>`);
-});
+body.light-mode button:hover{box-shadow:0 10px 30px rgba(0,0,0,0.3);}
 
-// Login POST handler
-app.post('/login', (req, res) => {
-  const { password } = req.body;
-  if (password === ACCESS_CODE) {
-    req.session.authenticated = true;
-    res.redirect('/');
-  } else {
-    res.redirect('/login?error=1');
-  }
-});
+.status{margin-top:20px;font-size:14px;color:rgba(255,255,255,0.6);}
+body.light-mode .status{color:rgba(0,0,0,0.6);}
+.secret{margin-top:10px;font-size:12px;color:#000;background:#000;padding:5px 15px;border-radius:8px;transition:all 0.5s ease;display:inline-block;user-select:none;position:relative;z-index:100;cursor:default !important;}
+body.light-mode .secret{color:#fff;background:#fff;}
+.secret:hover{color:rgba(255,255,255,0.4);background:rgba(255,255,255,0.05);}
+body.light-mode .secret:hover{color:rgba(0,0,0,0.4);background:rgba(0,0,0,0.05);}
 
-// Logout endpoint
-app.get('/logout', (req, res) => {
-  req.session.destroy();
-  res.redirect('/login');
-});
+.cursor{position:fixed;width:20px;height:20px;border:2px solid rgba(255,255,255,0.8);border-radius:50%;pointer-events:none;z-index:10000;transform:translate(-50%,-50%);transition:border-color 0.3s;}
+body.light-mode .cursor{border-color:rgba(0,0,0,0.8);}
 
-// Main page (protected)
-app.get('/', requireAuth, (req, res) => {
-  const errorMsg = req.query.error === 'invalid-url' ? 
-    '<div class="error-banner">⚠️ Invalid URL detected. Please enter a proper website address below.</div>' : '';
-  
-  res.send(`<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rainbow Proxy</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
-<style>
-*{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:'Inter',sans-serif;background:#000;color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden;transition:background 0.3s,color 0.3s;}
+.mode-toggle{position:fixed;top:20px;right:20px;padding:10px 20px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:10px;font-size:12px;transition:0.3s;z-index:101;backdrop-filter:blur(10px);cursor:pointer !important;}
+body.light-mode .mode-toggle{background:rgba(0,0,0,0.1);border:1px solid rgba(0,0,0,0.2);}
+.mode-toggle:hover{background:rgba(255,255,255,0.2);transform:scale(1.05);}
+body.light-mode .mode-toggle:hover{background:rgba(0,0,0,0.2);}
+
+.logout-btn{position:fixed;top:20px;left:20px;padding:10px 20px;background:rgba(255,0,0,0.2);border:1px solid rgba(255,0,0,0.3);border-radius:10px;font-size:12px;transition:0.3s;z-index:101;backdrop-filter:blur(10px);color:#fff;text-decoration:none;cursor:pointer !important;}
+.logout-btn:hover{background:rgba(255,0,0,0.3);transform:scale(1.05);}
+
+.loading-screen{position:fixed;top:0;left:0;width:100%;height:100%;background:#000;display:flex;align-items:center;justify-content:center;z-index:10000;opacity:1;transition:opacity 0.5s;}
+.loading-screen.hide{opacity:0;pointer-events:none;}
+.loading-content{text-align:center;}
+.loading-spinner{width:60px;height:60px;margin:0 auto 20px;border:4px solid rgba(255,255,255,0.1);border-top:4px solid #fff;border-radius:50%;animation:spin 1s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading-text{font-size:18px;color:#fff;margin-top:15px;}
+.loading-url{font-size:14px;color:rgba(255,255,255,0.5);margin-top:10px;font-family:monospace;max-width:80%;margin-left:auto;margin-right:auto;word-break:break-all;}
+
+.warning{margin-top:25px;padding:15px;background:rgba(255,255,0,0.1);border:1px solid rgba(255,255,0,0.3);border-radius:8px;font-size:12px;color:rgba(255,255,0,0.8);}
+.error-banner{margin-bottom:20px;padding:15px;background:rgba(255,100,100,0.2);border:1px solid rgba(255,100,100,0.4);border-radius:8px;font-size:14px;color:#ff6666;}
+.quick-links{margin-top:30px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+.quick-link{padding:8px 16px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.2);border-radius:8px;font-size:12px;transition:0.3s;color:#fff;text-decoration:none;cursor:pointer !important;}
+.quick-link:hover{background:rgba(255,255,255,0.1);transform:translateY(-2px);}
+body.light-mode .quick-link{background:rgba(0,0,0,0.05);border:1px solid rgba(0,0,0,0.2);color:#000;}
+body.light-mode .quick-link:hover{background:rgba(0,0,0,0.1);}
 body.light-mode{background:#fff;color:#000;}
 body *{cursor:none;}
 button, a, input, .mode-toggle, .logout-btn, .quick-link{cursor:pointer !important;}
