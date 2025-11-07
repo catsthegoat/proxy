@@ -6,7 +6,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // CHANGE THIS PASSWORD TO YOUR OWN!
-const ACCESS_CODE = process.env.PROXY_PASSWORD || 'secret';
+const ACCESS_CODE = process.env.PROXY_PASSWORD || 'rainbow123';
 
 // Session middleware for password protection
 app.use(session({
@@ -107,6 +107,9 @@ app.get('/logout', (req, res) => {
 
 // Main page (protected)
 app.get('/', requireAuth, (req, res) => {
+  const errorMsg = req.query.error === 'invalid-url' ? 
+    '<div class="error-banner">⚠️ Invalid URL detected. Please enter a proper website address below.</div>' : '';
+  
   res.send(`<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -197,6 +200,12 @@ body.light-mode .mode-toggle:hover{background:rgba(0,0,0,0.2);}
 .loading-url{font-size:14px;color:rgba(255,255,255,0.5);margin-top:10px;font-family:monospace;max-width:80%;margin-left:auto;margin-right:auto;word-break:break-all;}
 
 .warning{margin-top:25px;padding:15px;background:rgba(255,255,0,0.1);border:1px solid rgba(255,255,0,0.3);border-radius:8px;font-size:12px;color:rgba(255,255,0,0.8);}
+.error-banner{margin-bottom:20px;padding:15px;background:rgba(255,100,100,0.2);border:1px solid rgba(255,100,100,0.4);border-radius:8px;font-size:14px;color:#ff6666;}
+.quick-links{margin-top:30px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+.quick-link{padding:8px 16px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.2);border-radius:8px;font-size:12px;cursor:pointer;transition:0.3s;color:#fff;text-decoration:none;}
+.quick-link:hover{background:rgba(255,255,255,0.1);transform:translateY(-2px);}
+body.light-mode .quick-link{background:rgba(0,0,0,0.05);border:1px solid rgba(0,0,0,0.2);color:#000;}
+body.light-mode .quick-link:hover{background:rgba(0,0,0,0.1);}
 </style>
 </head>
 <body>
@@ -212,6 +221,7 @@ body.light-mode .mode-toggle:hover{background:rgba(0,0,0,0.2);}
 <a href="/logout" class="logout-btn">🔒 Logout</a>
 <div class="mode-toggle" onclick="toggleMode()">⚫ / ⚪</div>
 <div class="container">
+${errorMsg}
 <h1>RAINBOW PROXY</h1>
 <div class="input-wrapper">
 <input id="url" placeholder="enter url (e.g. coolmathgames.com)">
@@ -219,6 +229,12 @@ body.light-mode .mode-toggle:hover{background:rgba(0,0,0,0.2);}
 <br><br>
 <button onclick="go()">GO</button>
 <div class="status">Real proxy server running ✓</div>
+<div class="quick-links">
+  <a class="quick-link" onclick="fillUrl('coolmathgames.com')">🎮 Coolmath Games</a>
+  <a class="quick-link" onclick="fillUrl('poki.com')">🎯 Poki</a>
+  <a class="quick-link" onclick="fillUrl('crazygames.com')">🕹️ Crazy Games</a>
+  <a class="quick-link" onclick="fillUrl('reddit.com')">💬 Reddit</a>
+</div>
 <div class="warning">⚠️ Note: Some sites (Google, YouTube, banking) may not work due to security features. Best for: gaming sites, forums, social media.</div>
 <div class="secret">made by emma</div>
 </div>
@@ -237,9 +253,17 @@ function animate(){if(!isProxied){ctx.clearRect(0,0,canvas.width,canvas.height);
 animate();
 window.addEventListener('resize',()=>{canvas.width=window.innerWidth;canvas.height=window.innerHeight;});
 
+function fillUrl(url) {
+  document.getElementById('url').value = url;
+}
+
 function go(){
   let url=document.getElementById('url').value.trim();
   if(!url)return;
+  
+  // Clean up the URL
+  url = url.replace(/^[\/\\]+/, ''); // Remove leading slashes
+  
   if(!url.match(/^https?:\\/\\//))url='https://'+url;
   
   const loadingScreen = document.querySelector('.loading-screen');
@@ -256,15 +280,63 @@ document.getElementById('url').addEventListener('keypress',e=>e.key==='Enter'&&g
 </html>`);
 });
 
+// Catch-all route for malformed URLs - redirect to home
+app.get('*', requireAuth, (req, res, next) => {
+  // If it's not the proxy route and not a known route, redirect home
+  if (!req.path.startsWith('/proxy') && req.path !== '/' && req.path !== '/login' && req.path !== '/logout') {
+    return res.redirect('/?error=invalid-url');
+  }
+  next();
+});
+
 // Proxy endpoint - fetches and rewrites content (protected)
 app.get('/proxy', requireAuth, async (req, res) => {
   const targetUrl = req.query.url;
   
   if (!targetUrl) {
-    return res.status(400).send('Missing URL parameter');
+    return res.status(400).send(`
+      <html>
+      <head>
+        <style>
+          body{background:#000;color:#fff;font-family:sans-serif;padding:50px;text-align:center;}
+          .error-box{background:rgba(255,0,0,0.1);border:2px solid #ff0066;padding:30px;border-radius:15px;max-width:600px;margin:0 auto;}
+          h1{color:#ff0066;margin-bottom:20px;}
+          a{color:#00ff99;text-decoration:none;padding:10px 20px;background:rgba(0,255,153,0.1);border-radius:8px;display:inline-block;margin-top:20px;}
+        </style>
+      </head>
+      <body>
+        <div class="error-box">
+          <h1>❌ Missing URL</h1>
+          <p>You need to provide a URL to proxy!</p>
+          <p style="margin-top:10px;color:rgba(255,255,255,0.6);font-size:14px;">
+            Use the home page to enter a website URL.
+          </p>
+          <a href="/">← Go Back Home</a>
+        </div>
+      </body>
+      </html>
+    `);
   }
 
   try {
+    // Validate and fix the URL
+    let validUrl = targetUrl;
+    
+    // Remove any leading slashes or weird characters
+    validUrl = validUrl.replace(/^[\/\\]+/, '');
+    
+    // Ensure it has a protocol
+    if (!validUrl.match(/^https?:\/\//)) {
+      validUrl = 'https://' + validUrl;
+    }
+    
+    // Validate the URL format
+    try {
+      new URL(validUrl);
+    } catch (e) {
+      throw new Error('Invalid URL format. Please enter a valid website address.');
+    }
+    
     // Fetch the target page
     const response = await fetch(targetUrl, {
       headers: {
