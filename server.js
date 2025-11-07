@@ -123,14 +123,13 @@ button:hover{opacity:0.9;}
 <br>
 <button onclick="go()">🚀 GO</button>
 <div class="quick-links">
-  <span class="quick-link" onclick="fillUrl('nowgg.me')">🎮 now.gg</span>
+  <span class="quick-link" onclick="fillUrl('coolmathgames.com')">🎮 Coolmath</span>
   <span class="quick-link" onclick="fillUrl('krunker.io')">🔫 Krunker</span>
   <span class="quick-link" onclick="fillUrl('slither.io')">🐍 Slither.io</span>
   <span class="quick-link" onclick="fillUrl('agar.io')">⚫ Agar.io</span>
-  <span class="quick-link" onclick="fillUrl('geoguessr.com')">🌍 GeoGuessr</span>
-  <span class="quick-link" onclick="fillUrl('chess.com')">♟️ Chess.com</span>
+  <span class="quick-link" onclick="fillUrl('chess.com')">♟️ Chess</span>
 </div>
-<div class="warning">⚠️ Note: Complex sites with heavy DRM/anti-bot (like Poki, some Coolmath games) may not work. Try simple .io games or chess/puzzle sites!</div>
+<div class="warning">⚠️ Some sites may not work. Gaming sites work best!</div>
 </div>
 <script>
 function fillUrl(url){document.getElementById('url').value=url;}
@@ -138,7 +137,7 @@ function go(){
   let url=document.getElementById('url').value.trim();
   if(!url)return alert('Please enter a URL');
   if(!url.match(/^https?:\\/\\//))url='https://'+url;
-  window.location.href='/p/'+encodeURIComponent(btoa(unescape(encodeURIComponent(url))));
+  window.location.href='/p/'+encodeURIComponent(btoa(url));
 }
 document.getElementById('url').addEventListener('keypress',e=>{
   if(e.key==='Enter')go();
@@ -148,59 +147,60 @@ document.getElementById('url').addEventListener('keypress',e=>{
 </html>`);
 });
 
-// NEW APPROACH: Use path-based proxying instead of query params
+// PROXY ROUTE - catches ALL /p/ requests
 app.get('/p/:encodedUrl(*)', requireAuth, async (req, res) => {
   try {
+    // Store current base URL in session for relative navigation
     const decodedParam = decodeURIComponent(req.params.encodedUrl);
     const targetUrl = Buffer.from(decodedParam, 'base64').toString('utf-8');
+    
     console.log('Proxying:', targetUrl);
 
     const response = await fetch(targetUrl, {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
         'Accept': '*/*',
         'Accept-Language': 'en-US,en;q=0.9',
-        'Accept-Encoding': 'gzip, deflate, br',
-        'Referer': new URL(targetUrl).origin,
-        'Origin': new URL(targetUrl).origin
+        'Referer': new URL(targetUrl).origin
       },
       redirect: 'follow'
     });
 
     const contentType = response.headers.get('content-type') || '';
     
-    // Remove restrictive headers
+    // Remove frame-busting headers
     res.removeHeader('Content-Security-Policy');
-    res.removeHeader('Content-Security-Policy-Report-Only');
     res.removeHeader('X-Frame-Options');
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', '*');
-    res.setHeader('Access-Control-Allow-Headers', '*');
 
     // Handle HTML
     if (contentType.includes('text/html')) {
       let html = await response.text();
       const url = new URL(targetUrl);
       const baseUrl = url.origin;
+      const basePath = targetUrl.substring(0, targetUrl.lastIndexOf('/') + 1);
 
-      // AGGRESSIVE URL REWRITING
-      html = html.replace(/(href|src|action|data|poster|background)=["']([^"']+)["']/gi, (match, attr, url) => {
-        if (!url || url.startsWith('data:') || url.startsWith('javascript:') || url.startsWith('mailto:') || url.startsWith('#')) {
+      // Store base for this session
+      req.session.proxyBase = baseUrl;
+
+      // Rewrite all URLs
+      html = html.replace(/(href|src|action|data)=["']([^"']+)["']/gi, (match, attr, urlVal) => {
+        if (!urlVal || urlVal.startsWith('data:') || urlVal.startsWith('javascript:') || urlVal.startsWith('mailto:') || urlVal === '#') {
           return match;
         }
         
-        let absoluteUrl;
         try {
-          if (url.startsWith('//')) {
-            absoluteUrl = 'https:' + url;
-          } else if (url.startsWith('http')) {
-            absoluteUrl = url;
-          } else if (url.startsWith('/')) {
-            absoluteUrl = baseUrl + url;
+          let absoluteUrl;
+          if (urlVal.startsWith('//')) {
+            absoluteUrl = 'https:' + urlVal;
+          } else if (urlVal.startsWith('http')) {
+            absoluteUrl = urlVal;
+          } else if (urlVal.startsWith('/')) {
+            absoluteUrl = baseUrl + urlVal;
           } else {
-            absoluteUrl = new URL(url, targetUrl).href;
+            absoluteUrl = new URL(urlVal, basePath).href;
           }
-          const encoded = encodeURIComponent(Buffer.from(absoluteUrl, 'utf-8').toString('base64'));
+          const encoded = encodeURIComponent(Buffer.from(absoluteUrl).toString('base64'));
           return `${attr}="/p/${encoded}"`;
         } catch (e) {
           return match;
@@ -208,87 +208,137 @@ app.get('/p/:encodedUrl(*)', requireAuth, async (req, res) => {
       });
 
       // Rewrite CSS url()
-      html = html.replace(/url\(['"]?([^'")\s]+)['"]?\)/gi, (match, url) => {
-        if (url.startsWith('data:')) return match;
+      html = html.replace(/url\(['"]?([^'")\s]+)['"]?\)/gi, (match, urlVal) => {
+        if (urlVal.startsWith('data:')) return match;
         try {
           let absoluteUrl;
-          if (url.startsWith('//')) {
-            absoluteUrl = 'https:' + url;
-          } else if (url.startsWith('http')) {
-            absoluteUrl = url;
-          } else if (url.startsWith('/')) {
-            absoluteUrl = baseUrl + url;
+          if (urlVal.startsWith('//')) {
+            absoluteUrl = 'https:' + urlVal;
+          } else if (urlVal.startsWith('http')) {
+            absoluteUrl = urlVal;
+          } else if (urlVal.startsWith('/')) {
+            absoluteUrl = baseUrl + urlVal;
           } else {
-            absoluteUrl = new URL(url, targetUrl).href;
+            absoluteUrl = new URL(urlVal, basePath).href;
           }
-          const encoded = encodeURIComponent(Buffer.from(absoluteUrl, 'utf-8').toString('base64'));
+          const encoded = encodeURIComponent(Buffer.from(absoluteUrl).toString('base64'));
           return `url('/p/${encoded}')`;
         } catch (e) {
           return match;
         }
       });
 
-      // Inject super-powered proxy script
+      // Inject powerful proxy script that handles ALL navigation
       const proxyScript = `
+<base href="/p/${encodeURIComponent(Buffer.from(baseUrl + '/').toString('base64'))}">
 <script>
 (function(){
   const baseUrl = '${baseUrl}';
+  const currentUrl = '${targetUrl}';
+  
   const proxyUrl = (url) => {
-    if(!url || url.startsWith('data:') || url.startsWith('javascript:') || url.startsWith('blob:')) return url;
+    if(!url || url.startsWith('data:') || url.startsWith('javascript:') || url.startsWith('blob:') || url === '#') return url;
     try {
       let abs;
       if(url.startsWith('//')) abs = 'https:' + url;
       else if(url.startsWith('http')) abs = url;
       else if(url.startsWith('/')) abs = baseUrl + url;
-      else abs = new URL(url, window.location.href).href;
-      return '/p/' + encodeURIComponent(btoa(unescape(encodeURIComponent(abs))));
-    } catch(e) { return url; }
+      else abs = new URL(url, currentUrl).href;
+      return '/p/' + encodeURIComponent(btoa(abs));
+    } catch(e) { 
+      console.error('Proxy URL error:', e, url);
+      return url; 
+    }
   };
 
   // Intercept fetch
   const origFetch = window.fetch;
   window.fetch = function(url, opts) {
-    if(typeof url === 'string') url = proxyUrl(url);
+    if(typeof url === 'string') {
+      const proxied = proxyUrl(url);
+      console.log('Fetch:', url, '->', proxied);
+      url = proxied;
+    }
     return origFetch(url, opts);
   };
 
   // Intercept XHR
   const origOpen = XMLHttpRequest.prototype.open;
   XMLHttpRequest.prototype.open = function(method, url, ...args) {
-    if(typeof url === 'string') url = proxyUrl(url);
+    if(typeof url === 'string') {
+      url = proxyUrl(url);
+    }
     return origOpen.call(this, method, url, ...args);
   };
 
-  // Intercept dynamic elements
+  // Intercept window.open
+  const origWindowOpen = window.open;
+  window.open = function(url, ...args) {
+    if(url) {
+      window.location.href = proxyUrl(url);
+      return null;
+    }
+    return origWindowOpen(url, ...args);
+  };
+
+  // Intercept location changes
+  const origPushState = history.pushState;
+  history.pushState = function(state, title, url) {
+    if(url && typeof url === 'string' && !url.startsWith('/p/')) {
+      url = proxyUrl(url);
+    }
+    return origPushState.call(this, state, title, url);
+  };
+
+  const origReplaceState = history.replaceState;
+  history.replaceState = function(state, title, url) {
+    if(url && typeof url === 'string' && !url.startsWith('/p/')) {
+      url = proxyUrl(url);
+    }
+    return origReplaceState.call(this, state, title, url);
+  };
+
+  // Watch for dynamically added elements
   const observer = new MutationObserver((mutations) => {
-    document.querySelectorAll('[src], [href]').forEach(el => {
+    document.querySelectorAll('[src]:not([data-proxied]), [href]:not([data-proxied])').forEach(el => {
       ['src', 'href'].forEach(attr => {
         const val = el.getAttribute(attr);
-        if(val && val.startsWith('http') && !val.startsWith('/p/')) {
-          el.setAttribute(attr, proxyUrl(val));
+        if(val && !val.startsWith('/p/') && !val.startsWith('data:') && !val.startsWith('javascript:') && val !== '#') {
+          const proxied = proxyUrl(val);
+          if(proxied !== val) {
+            el.setAttribute(attr, proxied);
+            el.setAttribute('data-proxied', 'true');
+          }
         }
       });
     });
   });
-  if(document.body) observer.observe(document.body, {childList:true, subtree:true, attributes:true});
+  
+  if(document.body) {
+    observer.observe(document.body, {childList: true, subtree: true, attributes: true});
+  }
 
   // Block frame-busting
-  Object.defineProperty(window, 'top', {get: () => window.self});
-  Object.defineProperty(window, 'parent', {get: () => window.self});
-  
-  // Override window.open
-  window.open = function(url) {
-    window.location.href = proxyUrl(url);
-    return null;
-  };
+  try {
+    Object.defineProperty(window, 'top', {get: () => window.self, configurable: false});
+    Object.defineProperty(window, 'parent', {get: () => window.self, configurable: false});
+  } catch(e) {}
 
-  console.log('🌈 Proxy active');
+  // Fix iframes
+  document.querySelectorAll('iframe').forEach(iframe => {
+    const src = iframe.getAttribute('src');
+    if(src && !src.startsWith('/p/')) {
+      iframe.setAttribute('src', proxyUrl(src));
+    }
+  });
+
+  console.log('🌈 Proxy active for:', currentUrl);
 })();
 </script>
 `;
       
-      html = html.replace('</head>', proxyScript + '</head>');
-      if (!html.includes('</head>')) {
+      html = html.replace('<head>', '<head>' + proxyScript);
+      if (!html.includes('<head>')) {
         html = proxyScript + html;
       }
 
@@ -302,20 +352,20 @@ app.get('/p/:encodedUrl(*)', requireAuth, async (req, res) => {
       const url = new URL(targetUrl);
       const baseUrl = url.origin;
       
-      css = css.replace(/url\(['"]?([^'")\s]+)['"]?\)/gi, (match, url) => {
-        if (url.startsWith('data:')) return match;
+      css = css.replace(/url\(['"]?([^'")\s]+)['"]?\)/gi, (match, urlVal) => {
+        if (urlVal.startsWith('data:')) return match;
         try {
           let absoluteUrl;
-          if (url.startsWith('//')) {
-            absoluteUrl = 'https:' + url;
-          } else if (url.startsWith('http')) {
-            absoluteUrl = url;
-          } else if (url.startsWith('/')) {
-            absoluteUrl = baseUrl + url;
+          if (urlVal.startsWith('//')) {
+            absoluteUrl = 'https:' + urlVal;
+          } else if (urlVal.startsWith('http')) {
+            absoluteUrl = urlVal;
+          } else if (urlVal.startsWith('/')) {
+            absoluteUrl = baseUrl + urlVal;
           } else {
-            absoluteUrl = new URL(url, targetUrl).href;
+            absoluteUrl = new URL(urlVal, targetUrl).href;
           }
-          const encoded = encodeURIComponent(Buffer.from(absoluteUrl, 'utf-8').toString('base64'));
+          const encoded = encodeURIComponent(Buffer.from(absoluteUrl).toString('base64'));
           return `url('/p/${encoded}')`;
         } catch (e) {
           return match;
@@ -326,14 +376,7 @@ app.get('/p/:encodedUrl(*)', requireAuth, async (req, res) => {
       return res.send(css);
     }
 
-    // Handle JavaScript
-    if (contentType.includes('javascript') || contentType.includes('application/json')) {
-      const text = await response.text();
-      res.setHeader('Content-Type', contentType);
-      return res.send(text);
-    }
-
-    // Handle binary content (images, videos, etc)
+    // Pass through everything else (JS, images, etc)
     const buffer = await response.buffer();
     res.setHeader('Content-Type', contentType);
     res.send(buffer);
@@ -344,21 +387,16 @@ app.get('/p/:encodedUrl(*)', requireAuth, async (req, res) => {
       <html>
       <head><style>body{background:#000;color:#fff;font-family:system-ui;padding:50px;text-align:center;}</style></head>
       <body>
-        <h1 style="color:#ff0066;">❌ Error Loading Page</h1>
+        <h1 style="color:#ff0066;">❌ Error</h1>
         <p>${error.message}</p>
-        <a href="/" style="color:#00ff99;text-decoration:none;">← Go Back</a>
+        <a href="/" style="color:#00ff99;">← Home</a>
       </body>
       </html>
     `);
   }
 });
 
-app.use((err, req, res, next) => {
-  console.error('Server error:', err);
-  res.status(500).send('Error');
-});
-
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`🌈 Rainbow Proxy running on port ${PORT}`);
+  console.log(`🌈 Rainbow Proxy on port ${PORT}`);
   console.log(`🔒 Password: ${ACCESS_CODE}`);
 });
