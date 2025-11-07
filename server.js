@@ -565,3 +565,33 @@ app.get('/proxy', requireAuth, async (req, res) => {
 });
 
 // Error handling middleware
+app.use((err, req, res, next) => {
+  console.error('Server error:', err);
+  res.status(500).send(`
+    <html>
+    <head>
+      <style>
+        body{background:#000;color:#fff;font-family:sans-serif;padding:50px;text-align:center;}
+        .error-box{background:rgba(255,0,0,0.1);border:2px solid #ff0066;padding:30px;border-radius:15px;max-width:600px;margin:0 auto;}
+        h1{color:#ff0066;margin-bottom:20px;}
+        .message{color:#ff6666;margin:15px 0;}
+        a{color:#00ff99;text-decoration:none;padding:10px 20px;background:rgba(0,255,153,0.1);border-radius:8px;display:inline-block;margin-top:20px;}
+      </style>
+    </head>
+    <body>
+      <div class="error-box">
+        <h1>❌ Server Error</h1>
+        <div class="message">Something went wrong. Please try again.</div>
+        <a href="/">← Go Back Home</a>
+      </div>
+    </body>
+    </html>
+  `);
+});
+
+// Start server
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🌈 Rainbow Proxy running on port ${PORT}`);
+  console.log(`🔒 Password: ${ACCESS_CODE}`);
+  console.log(`🌐 Environment: ${process.env.NODE_ENV || 'development'}`);
+});
