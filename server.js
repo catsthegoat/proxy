@@ -6,7 +6,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // CHANGE THIS PASSWORD TO YOUR OWN!
-const ACCESS_CODE = process.env.PROXY_PASSWORD || 'diddyblud';
+const ACCESS_CODE = process.env.PROXY_PASSWORD || 'rainbow123';
 
 // Session middleware for password protection
 app.use(session({
@@ -121,8 +121,9 @@ app.get('/', requireAuth, (req, res) => {
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:'Inter',sans-serif;background:#000;color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden;transition:background 0.3s,color 0.3s;}
 body.light-mode{background:#fff;color:#000;}
-body.proxied{overflow:auto;display:block;}
-body *{cursor:none !important;}
+body *{cursor:none;}
+button, a, input, .mode-toggle, .logout-btn, .quick-link{cursor:pointer !important;}
+input{cursor:text !important;}
 #trail{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9998;}
 .container{text-align:center;padding:40px;position:relative;z-index:10;transition:opacity 0.3s;}
 .container.hide{opacity:0;pointer-events:none;}
@@ -177,7 +178,7 @@ body.light-mode button:hover{box-shadow:0 10px 30px rgba(0,0,0,0.3);}
 
 .status{margin-top:20px;font-size:14px;color:rgba(255,255,255,0.6);}
 body.light-mode .status{color:rgba(0,0,0,0.6);}
-.secret{margin-top:10px;font-size:12px;color:#000;background:#000;padding:5px 15px;border-radius:8px;transition:all 0.5s ease;cursor:pointer;display:inline-block;user-select:none;position:relative;z-index:100;}
+.secret{margin-top:10px;font-size:12px;color:#000;background:#000;padding:5px 15px;border-radius:8px;transition:all 0.5s ease;display:inline-block;user-select:none;position:relative;z-index:100;cursor:default !important;}
 body.light-mode .secret{color:#fff;background:#fff;}
 .secret:hover{color:rgba(255,255,255,0.4);background:rgba(255,255,255,0.05);}
 body.light-mode .secret:hover{color:rgba(0,0,0,0.4);background:rgba(0,0,0,0.05);}
@@ -232,10 +233,10 @@ ${errorMsg}
 <button onclick="go()">GO</button>
 <div class="status">Real proxy server running ✓</div>
 <div class="quick-links">
-  <a class="quick-link" onclick="fillUrl('coolmathgames.com')">🎮 Coolmath Games</a>
-  <a class="quick-link" onclick="fillUrl('poki.com')">🎯 Poki</a>
-  <a class="quick-link" onclick="fillUrl('crazygames.com')">🕹️ Crazy Games</a>
-  <a class="quick-link" onclick="fillUrl('reddit.com')">💬 Reddit</a>
+  <span class="quick-link" onclick="fillUrl('coolmathgames.com')">🎮 Coolmath Games</span>
+  <span class="quick-link" onclick="fillUrl('poki.com')">🎯 Poki</span>
+  <span class="quick-link" onclick="fillUrl('crazygames.com')">🕹️ Crazy Games</span>
+  <span class="quick-link" onclick="fillUrl('reddit.com')">💬 Reddit</span>
 </div>
 <div class="warning">⚠️ Note: Some sites (Google, YouTube, banking) may not work due to security features. Best for: gaming sites, forums, social media.</div>
 <div class="secret">made by emma</div>
