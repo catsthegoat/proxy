@@ -324,6 +324,33 @@ document.getElementById('url').addEventListener('keypress',e=>{
 </html>`);
 });
 
+// Catch-all proxy for paths (when clicking links on proxied sites)
+app.get('*', requireAuth, async (req, res, next) => {
+  // Skip static routes
+  if (req.path === '/' || req.path === '/login' || req.path === '/logout' || req.path.startsWith('/proxy')) {
+    return next();
+  }
+  
+  // If we have a referer from a proxied page, proxy this request too
+  const referer = req.get('referer');
+  if (referer && referer.includes('/proxy?url=')) {
+    // Extract the original base URL from referer
+    const urlMatch = referer.match(/url=([^&]+)/);
+    if (urlMatch) {
+      try {
+        const baseUrl = decodeURIComponent(urlMatch[1]);
+        const parsedBase = new URL(baseUrl);
+        const targetUrl = parsedBase.origin + req.path + (req.url.includes('?') ? req.url.substring(req.url.indexOf('?')) : '');
+        return res.redirect('/proxy?url=' + encodeURIComponent(targetUrl));
+      } catch (e) {
+        console.error('Error parsing referer:', e);
+      }
+    }
+  }
+  
+  next();
+});
+
 // Proxy endpoint
 app.get('/proxy', requireAuth, async (req, res) => {
   const targetUrl = req.query.url;
@@ -413,6 +440,17 @@ app.get('/proxy', requireAuth, async (req, res) => {
     const dom = new JSDOM(html);
     const document = dom.window.document;
 
+    // Add back button
+    const backBtn = document.createElement('div');
+    backBtn.innerHTML = `
+      <a href="/" style="position:fixed;top:10px;left:10px;z-index:999999;background:rgba(0,0,0,0.8);color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-family:sans-serif;font-size:14px;backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.2);">
+        ← Back to Proxy
+      </a>
+    `;
+    if (document.body) {
+      document.body.insertBefore(backBtn, document.body.firstChild);
+    }
+
     document.querySelectorAll('a[href]').forEach(el => {
       el.setAttribute('href', rewriteUrl(el.getAttribute('href')));
     });
@@ -423,6 +461,15 @@ app.get('/proxy', requireAuth, async (req, res) => {
 
     document.querySelectorAll('link[href]').forEach(el => {
       el.setAttribute('href', rewriteUrl(el.getAttribute('href')));
+    });
+
+    // Also rewrite in inline styles and scripts
+    document.querySelectorAll('style').forEach(el => {
+      let content = el.textContent;
+      content = content.replace(/url\(['"]?(https?:\/\/[^'")\s]+)['"]?\)/gi, (match, url) => {
+        return `url('${rewriteUrl(url)}')`;
+      });
+      el.textContent = content;
     });
 
     res.send(dom.serialize());
