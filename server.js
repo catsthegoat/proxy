@@ -440,15 +440,23 @@ app.get('/proxy', requireAuth, async (req, res) => {
     const dom = new JSDOM(html);
     const document = dom.window.document;
 
-    // Add back button
-    const backBtn = document.createElement('div');
-    backBtn.innerHTML = `
-      <a href="/" style="position:fixed;top:10px;left:10px;z-index:999999;background:rgba(0,0,0,0.8);color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-family:sans-serif;font-size:14px;backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.2);">
-        ← Back to Proxy
-      </a>
+    // Add navigation buttons
+    const navBar = document.createElement('div');
+    navBar.innerHTML = `
+      <div style="position:fixed;top:10px;left:10px;z-index:999999;display:flex;gap:10px;">
+        <button onclick="window.history.back()" style="background:rgba(0,0,0,0.8);color:#fff;padding:10px 15px;border-radius:8px;border:1px solid rgba(255,255,255,0.2);font-family:sans-serif;font-size:14px;cursor:pointer;backdrop-filter:blur(10px);">
+          ← Back
+        </button>
+        <button onclick="window.history.forward()" style="background:rgba(0,0,0,0.8);color:#fff;padding:10px 15px;border-radius:8px;border:1px solid rgba(255,255,255,0.2);font-family:sans-serif;font-size:14px;cursor:pointer;backdrop-filter:blur(10px);">
+          Forward →
+        </button>
+        <a href="/" style="background:rgba(255,0,0,0.6);color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-family:sans-serif;font-size:14px;backdrop-filter:blur(10px);border:1px solid rgba(255,0,0,0.3);display:flex;align-items:center;">
+          🏠 Home
+        </a>
+      </div>
     `;
     if (document.body) {
-      document.body.insertBefore(backBtn, document.body.firstChild);
+      document.body.insertBefore(navBar, document.body.firstChild);
     }
 
     document.querySelectorAll('a[href]').forEach(el => {
