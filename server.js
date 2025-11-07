@@ -14,6 +14,12 @@ const ACCESS_CODE = process.env.PROXY_PASSWORD || 'rainbow123';
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Debug middleware - log all requests
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.path}`, req.body);
+  next();
+});
+
 // Session middleware - configured for production
 app.use(session({
   secret: process.env.SESSION_SECRET || 'rainbow-proxy-secret-key-change-this',
@@ -21,10 +27,11 @@ app.use(session({
   saveUninitialized: false,
   cookie: { 
     maxAge: 24 * 60 * 60 * 1000, // 24 hours
-    secure: process.env.NODE_ENV === 'production', // HTTPS only in production
+    secure: false, // Set to false for now to debug
     httpOnly: true,
     sameSite: 'lax'
-  }
+  },
+  name: 'rainbow.sid' // Custom session name
 }));
 
 // CORS headers
@@ -42,9 +49,12 @@ app.get('/health', (req, res) => {
 
 // Middleware to check if user is authenticated
 const requireAuth = (req, res, next) => {
+  console.log('Auth check - Session:', req.session);
+  console.log('Authenticated:', req.session.authenticated);
   if (req.session.authenticated) {
     next();
   } else {
+    console.log('Not authenticated, redirecting to login');
     res.redirect('/login');
   }
 };
@@ -81,33 +91,48 @@ h1{font-size:48px;margin-bottom:30px;background:linear-gradient(90deg,#fff 0%,#f
 .input-wrapper input::placeholder { color: rgba(255,255,255,0.4); }
 button{width:100%;padding:15px 40px;background:#fff;color:#000;border:none;border-radius:12px;font-weight:700;cursor:pointer;font-size:14px;text-transform:uppercase;transition:0.3s;margin-top:20px;}
 button:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(255,255,255,0.3);}
+button:disabled{opacity:0.5;cursor:not-allowed;}
 .error{margin-top:15px;padding:12px;background:rgba(255,0,0,0.2);border:1px solid rgba(255,0,0,0.4);border-radius:8px;font-size:14px;color:#ff6666;}
 .lock-icon{font-size:60px;margin-bottom:20px;opacity:0.8;}
+.loading{margin-top:15px;padding:12px;background:rgba(0,255,153,0.2);border:1px solid rgba(0,255,153,0.4);border-radius:8px;font-size:14px;color:#00ff99;display:none;}
 </style>
 </head>
 <body>
 <div class="login-container">
 <div class="lock-icon">🔒</div>
 <h1>RAINBOW PROXY</h1>
-<form method="POST" action="/login">
+<form id="loginForm" method="POST" action="/login">
   <div class="input-wrapper">
-    <input type="password" name="password" placeholder="enter access code" autofocus required>
+    <input type="password" id="password" name="password" placeholder="enter access code" autofocus required>
   </div>
-  <button type="submit">UNLOCK</button>
+  <button type="submit" id="submitBtn">UNLOCK</button>
 </form>
 ${error ? '<div class="error">❌ Incorrect access code</div>' : ''}
+<div class="loading" id="loading">🔄 Logging in...</div>
 </div>
+<script>
+document.getElementById('loginForm').addEventListener('submit', function(e) {
+  const btn = document.getElementById('submitBtn');
+  const loading = document.getElementById('loading');
+  btn.disabled = true;
+  btn.textContent = 'CHECKING...';
+  loading.style.display = 'block';
+});
+</script>
 </body>
 </html>`);
 });
 
 // Login POST handler
 app.post('/login', (req, res) => {
+  console.log('Login attempt with password:', req.body.password ? '***' : 'empty');
   const { password } = req.body;
   if (password === ACCESS_CODE) {
     req.session.authenticated = true;
+    console.log('Login successful, session:', req.session);
     res.redirect('/');
   } else {
+    console.log('Login failed - incorrect password');
     res.redirect('/login?error=1');
   }
 });
