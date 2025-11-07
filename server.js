@@ -6,7 +6,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // CHANGE THIS PASSWORD TO YOUR OWN!
-const ACCESS_CODE = process.env.PROXY_PASSWORD || 'rainbow123';
+const ACCESS_CODE = process.env.PROXY_PASSWORD || 'diddyblud';
 
 // Session middleware for password protection
 app.use(session({
@@ -119,9 +119,10 @@ app.get('/', requireAuth, (req, res) => {
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:'Inter',sans-serif;background:#000;color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:none;transition:background 0.3s,color 0.3s;}
+body{font-family:'Inter',sans-serif;background:#000;color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden;transition:background 0.3s,color 0.3s;}
 body.light-mode{background:#fff;color:#000;}
-body.proxied{overflow:auto;display:block;cursor:auto;}
+body.proxied{overflow:auto;display:block;}
+body *{cursor:none !important;}
 #trail{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9998;}
 .container{text-align:center;padding:40px;position:relative;z-index:10;transition:opacity 0.3s;}
 .container.hide{opacity:0;pointer-events:none;}
@@ -163,12 +164,13 @@ body.light-mode .input-wrapper::before {
   text-align: center;
   z-index: 1;
   outline: none;
+  cursor: text !important;
 }
 body.light-mode .input-wrapper input { color:#000; }
 .input-wrapper input::placeholder { color: rgba(255,255,255,0.4); }
 body.light-mode .input-wrapper input::placeholder { color: rgba(0,0,0,0.4); }
 
-button{padding:15px 40px;background:#fff;color:#000;border:none;border-radius:12px;font-weight:700;cursor:pointer;font-size:14px;text-transform:uppercase;transition:0.3s;}
+button{padding:15px 40px;background:#fff;color:#000;border:none;border-radius:12px;font-weight:700;font-size:14px;text-transform:uppercase;transition:0.3s;cursor:pointer !important;}
 body.light-mode button{background:#000;color:#fff;}
 button:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(255,255,255,0.3);}
 body.light-mode button:hover{box-shadow:0 10px 30px rgba(0,0,0,0.3);}
@@ -180,15 +182,15 @@ body.light-mode .secret{color:#fff;background:#fff;}
 .secret:hover{color:rgba(255,255,255,0.4);background:rgba(255,255,255,0.05);}
 body.light-mode .secret:hover{color:rgba(0,0,0,0.4);background:rgba(0,0,0,0.05);}
 
-.cursor{position:fixed;width:20px;height:20px;border:2px solid rgba(255,255,255,0.8);border-radius:50%;pointer-events:none;z-index:10000;transform:translate(-50%,-50%);}
+.cursor{position:fixed;width:20px;height:20px;border:2px solid rgba(255,255,255,0.8);border-radius:50%;pointer-events:none;z-index:10000;transform:translate(-50%,-50%);transition:border-color 0.3s;}
 body.light-mode .cursor{border-color:rgba(0,0,0,0.8);}
 
-.mode-toggle{position:fixed;top:20px;right:20px;padding:10px 20px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:10px;font-size:12px;cursor:pointer;transition:0.3s;z-index:101;backdrop-filter:blur(10px);}
+.mode-toggle{position:fixed;top:20px;right:20px;padding:10px 20px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:10px;font-size:12px;transition:0.3s;z-index:101;backdrop-filter:blur(10px);cursor:pointer !important;}
 body.light-mode .mode-toggle{background:rgba(0,0,0,0.1);border:1px solid rgba(0,0,0,0.2);}
 .mode-toggle:hover{background:rgba(255,255,255,0.2);transform:scale(1.05);}
 body.light-mode .mode-toggle:hover{background:rgba(0,0,0,0.2);}
 
-.logout-btn{position:fixed;top:20px;left:20px;padding:10px 20px;background:rgba(255,0,0,0.2);border:1px solid rgba(255,0,0,0.3);border-radius:10px;font-size:12px;cursor:pointer;transition:0.3s;z-index:101;backdrop-filter:blur(10px);color:#fff;text-decoration:none;}
+.logout-btn{position:fixed;top:20px;left:20px;padding:10px 20px;background:rgba(255,0,0,0.2);border:1px solid rgba(255,0,0,0.3);border-radius:10px;font-size:12px;transition:0.3s;z-index:101;backdrop-filter:blur(10px);color:#fff;text-decoration:none;cursor:pointer !important;}
 .logout-btn:hover{background:rgba(255,0,0,0.3);transform:scale(1.05);}
 
 .loading-screen{position:fixed;top:0;left:0;width:100%;height:100%;background:#000;display:flex;align-items:center;justify-content:center;z-index:10000;opacity:1;transition:opacity 0.5s;}
@@ -202,7 +204,7 @@ body.light-mode .mode-toggle:hover{background:rgba(0,0,0,0.2);}
 .warning{margin-top:25px;padding:15px;background:rgba(255,255,0,0.1);border:1px solid rgba(255,255,0,0.3);border-radius:8px;font-size:12px;color:rgba(255,255,0,0.8);}
 .error-banner{margin-bottom:20px;padding:15px;background:rgba(255,100,100,0.2);border:1px solid rgba(255,100,100,0.4);border-radius:8px;font-size:14px;color:#ff6666;}
 .quick-links{margin-top:30px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
-.quick-link{padding:8px 16px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.2);border-radius:8px;font-size:12px;cursor:pointer;transition:0.3s;color:#fff;text-decoration:none;}
+.quick-link{padding:8px 16px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.2);border-radius:8px;font-size:12px;transition:0.3s;color:#fff;text-decoration:none;cursor:pointer !important;}
 .quick-link:hover{background:rgba(255,255,255,0.1);transform:translateY(-2px);}
 body.light-mode .quick-link{background:rgba(0,0,0,0.05);border:1px solid rgba(0,0,0,0.2);color:#000;}
 body.light-mode .quick-link:hover{background:rgba(0,0,0,0.1);}
@@ -240,18 +242,86 @@ ${errorMsg}
 </div>
 <script>
 let lightMode=false;
-function toggleMode(){lightMode=!lightMode;document.body.classList.toggle('light-mode',lightMode);}
 
-const canvas=document.getElementById('trail');const ctx=canvas.getContext('2d');const cursor=document.querySelector('.cursor');canvas.width=window.innerWidth;canvas.height=window.innerHeight;
-let particles=[];let mouseX=window.innerWidth/2;let mouseY=window.innerHeight/2;
-let isProxied=false;
+function toggleMode(){
+  lightMode=!lightMode;
+  document.body.classList.toggle('light-mode',lightMode);
+  // Force redraw of particles with new colors
+  particles.forEach(p => p.draw());
+}
 
-class Particle{constructor(x,y){this.x=x;this.y=y;this.size=Math.random()*4+2;this.speedX=Math.random()*2-1;this.speedY=Math.random()*2-1;this.life=1;}update(){this.x+=this.speedX;this.y+=this.speedY;this.life-=0.015;if(this.size>0.1)this.size-=0.03;}draw(){const color=lightMode?'0,0,0':'255,255,255';ctx.fillStyle='rgba('+color+','+this.life+')';ctx.shadowBlur=10;ctx.shadowColor=lightMode?'rgba(0,0,0,'+this.life+')':'rgba(255,255,255,'+this.life+')';ctx.beginPath();ctx.arc(this.x,this.y,this.size,0,Math.PI*2);ctx.fill();}}
-let cursorX=mouseX;let cursorY=mouseY;
-document.addEventListener('mousemove',e=>{if(!isProxied){mouseX=e.clientX;mouseY=e.clientY;if(particles.length<100){for(let i=0;i<3;i++){particles.push(new Particle(mouseX,mouseY));}}}});
-function animate(){if(!isProxied){ctx.clearRect(0,0,canvas.width,canvas.height);cursorX+=(mouseX-cursorX)*0.3;cursorY+=(mouseY-cursorY)*0.3;cursor.style.left=cursorX+'px';cursor.style.top=cursorY+'px';for(let i=particles.length-1;i>=0;i--){particles[i].update();particles[i].draw();if(particles[i].life<=0){particles.splice(i,1);}}}requestAnimationFrame(animate);}
+const canvas=document.getElementById('trail');
+const ctx=canvas.getContext('2d');
+const cursor=document.querySelector('.cursor');
+canvas.width=window.innerWidth;
+canvas.height=window.innerHeight;
+
+let particles=[];
+let mouseX=window.innerWidth/2;
+let mouseY=window.innerHeight/2;
+
+class Particle{
+  constructor(x,y){
+    this.x=x;
+    this.y=y;
+    this.size=Math.random()*4+2;
+    this.speedX=Math.random()*2-1;
+    this.speedY=Math.random()*2-1;
+    this.life=1;
+  }
+  update(){
+    this.x+=this.speedX;
+    this.y+=this.speedY;
+    this.life-=0.015;
+    if(this.size>0.1)this.size-=0.03;
+  }
+  draw(){
+    const color=lightMode?'0,0,0':'255,255,255';
+    ctx.fillStyle='rgba('+color+','+this.life+')';
+    ctx.shadowBlur=10;
+    ctx.shadowColor=lightMode?'rgba(0,0,0,'+this.life+')':'rgba(255,255,255,'+this.life+')';
+    ctx.beginPath();
+    ctx.arc(this.x,this.y,this.size,0,Math.PI*2);
+    ctx.fill();
+  }
+}
+
+let cursorX=mouseX;
+let cursorY=mouseY;
+
+document.addEventListener('mousemove',e=>{
+  mouseX=e.clientX;
+  mouseY=e.clientY;
+  if(particles.length<100){
+    for(let i=0;i<3;i++){
+      particles.push(new Particle(mouseX,mouseY));
+    }
+  }
+});
+
+function animate(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  cursorX+=(mouseX-cursorX)*0.3;
+  cursorY+=(mouseY-cursorY)*0.3;
+  cursor.style.left=cursorX+'px';
+  cursor.style.top=cursorY+'px';
+  
+  for(let i=particles.length-1;i>=0;i--){
+    particles[i].update();
+    particles[i].draw();
+    if(particles[i].life<=0){
+      particles.splice(i,1);
+    }
+  }
+  requestAnimationFrame(animate);
+}
+
 animate();
-window.addEventListener('resize',()=>{canvas.width=window.innerWidth;canvas.height=window.innerHeight;});
+
+window.addEventListener('resize',()=>{
+  canvas.width=window.innerWidth;
+  canvas.height=window.innerHeight;
+});
 
 function fillUrl(url) {
   document.getElementById('url').value = url;
