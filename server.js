@@ -138,7 +138,7 @@ function go(){
   let url=document.getElementById('url').value.trim();
   if(!url)return alert('Please enter a URL');
   if(!url.match(/^https?:\\/\\//))url='https://'+url;
-  window.location.href='/p/'+btoa(url);
+  window.location.href='/p/'+encodeURIComponent(btoa(unescape(encodeURIComponent(url))));
 }
 document.getElementById('url').addEventListener('keypress',e=>{
   if(e.key==='Enter')go();
@@ -151,7 +151,8 @@ document.getElementById('url').addEventListener('keypress',e=>{
 // NEW APPROACH: Use path-based proxying instead of query params
 app.get('/p/:encodedUrl(*)', requireAuth, async (req, res) => {
   try {
-    const targetUrl = Buffer.from(req.params.encodedUrl, 'base64').toString();
+    const decodedParam = decodeURIComponent(req.params.encodedUrl);
+    const targetUrl = Buffer.from(decodedParam, 'base64').toString('utf-8');
     console.log('Proxying:', targetUrl);
 
     const response = await fetch(targetUrl, {
@@ -199,7 +200,8 @@ app.get('/p/:encodedUrl(*)', requireAuth, async (req, res) => {
           } else {
             absoluteUrl = new URL(url, targetUrl).href;
           }
-          return `${attr}="/p/${Buffer.from(absoluteUrl).toString('base64')}"`;
+          const encoded = encodeURIComponent(Buffer.from(absoluteUrl, 'utf-8').toString('base64'));
+          return `${attr}="/p/${encoded}"`;
         } catch (e) {
           return match;
         }
@@ -219,7 +221,8 @@ app.get('/p/:encodedUrl(*)', requireAuth, async (req, res) => {
           } else {
             absoluteUrl = new URL(url, targetUrl).href;
           }
-          return `url('/p/${Buffer.from(absoluteUrl).toString('base64')}')`;
+          const encoded = encodeURIComponent(Buffer.from(absoluteUrl, 'utf-8').toString('base64'));
+          return `url('/p/${encoded}')`;
         } catch (e) {
           return match;
         }
@@ -238,7 +241,7 @@ app.get('/p/:encodedUrl(*)', requireAuth, async (req, res) => {
       else if(url.startsWith('http')) abs = url;
       else if(url.startsWith('/')) abs = baseUrl + url;
       else abs = new URL(url, window.location.href).href;
-      return '/p/' + btoa(abs);
+      return '/p/' + encodeURIComponent(btoa(unescape(encodeURIComponent(abs))));
     } catch(e) { return url; }
   };
 
@@ -312,7 +315,8 @@ app.get('/p/:encodedUrl(*)', requireAuth, async (req, res) => {
           } else {
             absoluteUrl = new URL(url, targetUrl).href;
           }
-          return `url('/p/${Buffer.from(absoluteUrl).toString('base64')}')`;
+          const encoded = encodeURIComponent(Buffer.from(absoluteUrl, 'utf-8').toString('base64'));
+          return `url('/p/${encoded}')`;
         } catch (e) {
           return match;
         }
