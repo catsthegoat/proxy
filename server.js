@@ -88,6 +88,14 @@ app.get('/logout', (req, res) => {
 });
 
 app.get('/', requireAuth, (req, res) => {
+  // Pre-encode all proxy URLs
+  const croxyproxy = encodeURIComponent(Buffer.from('https://www.croxyproxy.com').toString('base64'));
+  const blockaway = encodeURIComponent(Buffer.from('https://www.blockaway.net').toString('base64'));
+  const croxyrocks = encodeURIComponent(Buffer.from('https://www.croxyproxy.rocks').toString('base64'));
+  const proxysite = encodeURIComponent(Buffer.from('https://www.proxysite.com').toString('base64'));
+  const hideme = encodeURIComponent(Buffer.from('https://hide.me/en/proxy').toString('base64'));
+  const hidemyass = encodeURIComponent(Buffer.from('https://www.hidemyass.com/proxy').toString('base64'));
+  
   res.send(`<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -111,51 +119,53 @@ h1{font-size:48px;margin-bottom:15px;background:linear-gradient(90deg,#fff 0%,#f
 .proxy-desc{font-size:13px;color:rgba(255,255,255,0.6);line-height:1.4;}
 .proxy-tag{display:inline-block;margin-top:10px;padding:4px 10px;background:rgba(0,255,153,0.2);border:1px solid rgba(0,255,153,0.4);border-radius:4px;font-size:11px;color:#00ff99;}
 .note{margin-top:40px;padding:20px;background:rgba(255,255,0,0.1);border:1px solid rgba(255,255,0,0.3);border-radius:8px;font-size:13px;color:rgba(255,255,0,0.8);line-height:1.6;}
+.url-bar{margin-top:20px;padding:15px;background:rgba(0,255,153,0.1);border:1px solid rgba(0,255,153,0.3);border-radius:8px;font-family:monospace;font-size:12px;color:#00ff99;word-break:break-all;}
 </style>
 </head>
 <body>
 <a href="/logout" class="logout">🔒 Logout</a>
 <div class="container">
 <h1>🌈 RAINBOW GATEWAY</h1>
-<div class="subtitle">Access Professional Proxy Services</div>
+<div class="subtitle">Access Professional Proxy Services Through Your Proxy</div>
+<div class="url-bar">📍 Your URL will show: proxy-41so.onrender.com/p/[encoded]</div>
 
 <div class="proxy-grid">
-  <a href="/go?url=https://www.croxyproxy.com" class="proxy-card">
+  <a href="/p/${croxyproxy}" class="proxy-card">
     <div class="proxy-icon">🔵</div>
     <div class="proxy-name">CroxyProxy</div>
     <div class="proxy-desc">Best for TikTok, Instagram, YouTube. Very reliable and fast.</div>
     <span class="proxy-tag">RECOMMENDED</span>
   </a>
 
-  <a href="/go?url=https://www.blockaway.net" class="proxy-card">
+  <a href="/p/${blockaway}" class="proxy-card">
     <div class="proxy-icon">🟢</div>
     <div class="proxy-name">BlockAway</div>
     <div class="proxy-desc">Great for social media and streaming. Modern interface.</div>
     <span class="proxy-tag">FAST</span>
   </a>
 
-  <a href="/go?url=https://www.croxyproxy.rocks" class="proxy-card">
+  <a href="/p/${croxyrocks}" class="proxy-card">
     <div class="proxy-icon">🟣</div>
     <div class="proxy-name">CroxyProxy Rocks</div>
     <div class="proxy-desc">Alternative CroxyProxy mirror. Works if main is blocked.</div>
     <span class="proxy-tag">MIRROR</span>
   </a>
 
-  <a href="/go?url=https://www.proxysite.com" class="proxy-card">
+  <a href="/p/${proxysite}" class="proxy-card">
     <div class="proxy-icon">🔴</div>
     <div class="proxy-name">ProxySite</div>
     <div class="proxy-desc">Simple and clean. Good for basic browsing.</div>
     <span class="proxy-tag">SIMPLE</span>
   </a>
 
-  <a href="/go?url=https://hide.me/en/proxy" class="proxy-card">
+  <a href="/p/${hideme}" class="proxy-card">
     <div class="proxy-icon">🟡</div>
     <div class="proxy-name">Hide.me</div>
     <div class="proxy-desc">Privacy-focused proxy. SSL encryption included.</div>
     <span class="proxy-tag">SECURE</span>
   </a>
 
-  <a href="/go?url=https://www.hidemyass.com/proxy" class="proxy-card">
+  <a href="/p/${hidemyass}" class="proxy-card">
     <div class="proxy-icon">🟠</div>
     <div class="proxy-name">HideMyAss</div>
     <div class="proxy-desc">Popular proxy service. Multiple server locations.</div>
@@ -164,12 +174,13 @@ h1{font-size:48px;margin-bottom:15px;background:linear-gradient(90deg,#fff 0%,#f
 </div>
 
 <div class="note">
-  <strong>💡 How to use:</strong><br>
+  <strong>💡 How it works:</strong><br>
   1. Click any proxy service above<br>
-  2. Once loaded, enter your desired website (TikTok, Snapchat, etc.)<br>
-  3. These professional proxies handle all the complex stuff!<br>
+  2. The URL will show YOUR proxy address (proxy-41so.onrender.com/p/...)<br>
+  3. You'll see the professional proxy site load THROUGH your proxy<br>
+  4. Use that proxy to access TikTok, Snapchat, etc.<br>
   <br>
-  <strong>⚡ Pro tip:</strong> Try CroxyProxy or BlockAway first - they work best for social media!
+  <strong>⚡ Double Layer Protection:</strong> School sees your proxy → Your proxy loads professional proxy → Professional proxy loads TikTok/Snapchat
 </div>
 </div>
 </body>
