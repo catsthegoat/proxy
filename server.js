@@ -45,7 +45,8 @@ app.get('/login', (req, res) => {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rainbow Proxy - Login</title>
+<title>Clever | Portal</title>
+<link rel="icon" type="image/x-icon" href="https://clever.com/favicon.ico">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:system-ui;background:#000;color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center;}
@@ -94,14 +95,15 @@ app.get('/', requireAuth, (req, res) => {
   const croxyrocks = encodeURIComponent(Buffer.from('https://www.croxyproxy.rocks').toString('base64'));
   const proxysite = encodeURIComponent(Buffer.from('https://www.proxysite.com').toString('base64'));
   const hideme = encodeURIComponent(Buffer.from('https://hide.me/en/proxy').toString('base64'));
-  const hidemyass = encodeURIComponent(Buffer.from('https://www.hidemyass.com/proxy').toString('base64'));
+  const plainproxies = encodeURIComponent(Buffer.from('https://www.plainproxies.com').toString('base64'));
   
   res.send(`<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rainbow Gateway</title>
+<title>Clever | Portal</title>
+<link rel="icon" type="image/x-icon" href="https://clever.com/favicon.ico">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:system-ui;background:#000;color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}
@@ -111,6 +113,8 @@ h1{font-size:48px;margin-bottom:15px;background:linear-gradient(90deg,#fff 0%,#f
 .subtitle{color:rgba(255,255,255,0.6);margin-bottom:40px;font-size:14px;}
 .logout{position:fixed;top:20px;right:20px;padding:10px 20px;background:rgba(255,0,0,0.3);border:1px solid rgba(255,0,0,0.5);border-radius:8px;font-size:12px;color:#fff;text-decoration:none;}
 .logout:hover{background:rgba(255,0,0,0.5);}
+.disguise-btn{position:fixed;top:20px;left:20px;padding:10px 20px;background:rgba(0,255,153,0.3);border:1px solid rgba(0,255,153,0.5);border-radius:8px;font-size:12px;color:#00ff99;border:none;cursor:pointer;}
+.disguise-btn:hover{background:rgba(0,255,153,0.5);}
 .proxy-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px;margin-top:30px;}
 .proxy-card{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.2);border-radius:12px;padding:25px;cursor:pointer;transition:all 0.3s;text-decoration:none;color:#fff;display:block;}
 .proxy-card:hover{transform:translateY(-5px);border-color:rgba(255,255,255,0.5);background:rgba(255,255,255,0.1);}
@@ -119,15 +123,31 @@ h1{font-size:48px;margin-bottom:15px;background:linear-gradient(90deg,#fff 0%,#f
 .proxy-desc{font-size:13px;color:rgba(255,255,255,0.6);line-height:1.4;}
 .proxy-tag{display:inline-block;margin-top:10px;padding:4px 10px;background:rgba(0,255,153,0.2);border:1px solid rgba(0,255,153,0.4);border-radius:4px;font-size:11px;color:#00ff99;}
 .note{margin-top:40px;padding:20px;background:rgba(255,255,0,0.1);border:1px solid rgba(255,255,0,0.3);border-radius:8px;font-size:13px;color:rgba(255,255,0,0.8);line-height:1.6;}
-.url-bar{margin-top:20px;padding:15px;background:rgba(0,255,153,0.1);border:1px solid rgba(0,255,153,0.3);border-radius:8px;font-family:monospace;font-size:12px;color:#00ff99;word-break:break-all;}
+.test-box{margin-top:20px;padding:20px;background:rgba(0,255,153,0.1);border:1px solid rgba(0,255,153,0.3);border-radius:8px;}
+.test-title{font-size:16px;font-weight:700;color:#00ff99;margin-bottom:15px;}
+.test-steps{text-align:left;font-size:13px;color:rgba(255,255,255,0.8);line-height:1.8;}
+.test-steps li{margin-bottom:8px;}
+.url-example{font-family:monospace;background:rgba(0,0,0,0.5);padding:8px;border-radius:4px;color:#00ff99;margin-top:5px;word-break:break-all;font-size:11px;}
 </style>
 </head>
 <body>
+<button class="disguise-btn" onclick="toggleDisguise()">🎭 Disguise: ON</button>
 <a href="/logout" class="logout">🔒 Logout</a>
 <div class="container">
 <h1>🌈 RAINBOW GATEWAY</h1>
 <div class="subtitle">Access Professional Proxy Services Through Your Proxy</div>
-<div class="url-bar">📍 Your URL will show: proxy-41so.onrender.com/p/[encoded]</div>
+
+<div class="test-box">
+  <div class="test-title">✅ How to Test It's Using YOUR Proxy:</div>
+  <ol class="test-steps">
+    <li><strong>Look at the URL bar</strong> - It should show:<br>
+      <div class="url-example">proxy-41so.onrender.com/p/aHR0cHM6Ly93d3cu...</div>
+    </li>
+    <li><strong>Check the address</strong> - It should ALWAYS start with your domain (proxy-41so.onrender.com)</li>
+    <li><strong>Tab disguise</strong> - Shows "Clever | Portal" with Clever icon to blend in at school!</li>
+    <li><strong>School network sees</strong> - Only traffic to proxy-41so.onrender.com, nothing else!</li>
+  </ol>
+</div>
 
 <div class="proxy-grid">
   <a href="/p/${croxyproxy}" class="proxy-card">
@@ -165,24 +185,56 @@ h1{font-size:48px;margin-bottom:15px;background:linear-gradient(90deg,#fff 0%,#f
     <span class="proxy-tag">SECURE</span>
   </a>
 
-  <a href="/p/${hidemyass}" class="proxy-card">
+  <a href="/p/${plainproxies}" class="proxy-card">
     <div class="proxy-icon">🟠</div>
-    <div class="proxy-name">HideMyAss</div>
-    <div class="proxy-desc">Popular proxy service. Multiple server locations.</div>
-    <span class="proxy-tag">POPULAR</span>
+    <div class="proxy-name">PlainProxies</div>
+    <div class="proxy-desc">Clean interface. Good for social media and general browsing.</div>
+    <span class="proxy-tag">CLEAN</span>
   </a>
 </div>
 
 <div class="note">
   <strong>💡 How it works:</strong><br>
   1. Click any proxy service above<br>
-  2. The URL will show YOUR proxy address (proxy-41so.onrender.com/p/...)<br>
-  3. You'll see the professional proxy site load THROUGH your proxy<br>
-  4. Use that proxy to access TikTok, Snapchat, etc.<br>
+  2. Your proxy loads that service (URL stays on YOUR domain)<br>
+  3. Use that service to access TikTok, Snapchat, etc.<br>
   <br>
-  <strong>⚡ Double Layer Protection:</strong> School sees your proxy → Your proxy loads professional proxy → Professional proxy loads TikTok/Snapchat
+  <strong>⚡ Triple Layer:</strong> School → Your Proxy → Professional Proxy → TikTok/Snapchat<br>
+  <strong>🎭 Disguised:</strong> Tab shows "Clever | Portal" - looks like a school website!
 </div>
 </div>
+
+<script>
+let disguised = true;
+
+function toggleDisguise() {
+  disguised = !disguised;
+  const btn = document.querySelector('.disguise-btn');
+  
+  if (disguised) {
+    document.title = 'Clever | Portal';
+    document.querySelector('link[rel="icon"]').href = 'https://clever.com/favicon.ico';
+    btn.textContent = '🎭 Disguise: ON';
+    btn.style.background = 'rgba(0,255,153,0.3)';
+    btn.style.color = '#00ff99';
+  } else {
+    document.title = 'Rainbow Gateway';
+    document.querySelector('link[rel="icon"]').href = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🌈</text></svg>';
+    btn.textContent = '🎭 Disguise: OFF';
+    btn.style.background = 'rgba(255,0,0,0.3)';
+    btn.style.color = '#ff6666';
+  }
+}
+
+// Auto-disguise on blur (when teacher walks by)
+document.addEventListener('visibilitychange', function() {
+  if (document.hidden) {
+    disguised = true;
+    document.title = 'Clever | Portal';
+    document.querySelector('link[rel="icon"]').href = 'https://clever.com/favicon.ico';
+  }
+});
+</script>
 </body>
 </html>`);
 });
