@@ -262,7 +262,10 @@ document.getElementById('quickUrl').addEventListener('keypress', function(e) {
 const proxyHandler = async (req, res) => {
   const targetUrl = req.query.url || req.body.url;
   
+  console.log(`[PROXY] ${req.method} request to: ${targetUrl}`);
+  
   if (!targetUrl) {
+    console.log('[PROXY] Error: No target URL provided');
     return res.status(400).send('Missing URL parameter');
   }
 
@@ -272,12 +275,16 @@ const proxyHandler = async (req, res) => {
       method: req.method,
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-        'Content-Type': req.headers['content-type'] || 'application/x-www-form-urlencoded'
-      }
+        'Content-Type': req.headers['content-type'] || 'application/x-www-form-urlencoded',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.5'
+      },
+      redirect: 'follow'
     };
 
     // If POST, include the body
     if (req.method === 'POST' && req.body) {
+      console.log('[PROXY] POST body:', req.body);
       // Forward form data
       const formData = new URLSearchParams();
       for (const [key, value] of Object.entries(req.body)) {
@@ -285,21 +292,26 @@ const proxyHandler = async (req, res) => {
           formData.append(key, value);
         }
       }
-      fetchOptions.body = formData;
+      fetchOptions.body = formData.toString();
     }
 
+    console.log('[PROXY] Fetching with options:', fetchOptions.method, fetchOptions.headers);
     const response = await fetch(targetUrl, fetchOptions);
+    console.log('[PROXY] Response status:', response.status, response.statusText);
 
     // Get content type
     const contentType = response.headers.get('content-type');
+    console.log('[PROXY] Content-Type:', contentType);
     
     // If it's HTML, rewrite links to go through proxy
     if (contentType && contentType.includes('text/html')) {
       let html = await response.text();
+      console.log('[PROXY] HTML length:', html.length);
       
       // Basic link rewriting - make all links go through our proxy
       const urlObj = new URL(targetUrl);
       const baseUrl = `${urlObj.protocol}//${urlObj.host}`;
+      console.log('[PROXY] Base URL:', baseUrl);
       
       // Rewrite relative and absolute URLs
       html = html.replace(/href="([^"]+)"/g, (match, url) => {
