@@ -258,19 +258,37 @@ document.getElementById('quickUrl').addEventListener('keypress', function(e) {
 });
 
 // Actual proxy endpoint - fetches and serves content through YOUR server
-app.get('/proxy', requireAuth, async (req, res) => {
-  const targetUrl = req.query.url;
+// Handle both GET and POST requests
+const proxyHandler = async (req, res) => {
+  const targetUrl = req.query.url || req.body.url;
   
   if (!targetUrl) {
     return res.status(400).send('Missing URL parameter');
   }
 
   try {
-    const response = await fetch(targetUrl, {
+    // Build fetch options based on request method
+    const fetchOptions = {
+      method: req.method,
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+        'Content-Type': req.headers['content-type'] || 'application/x-www-form-urlencoded'
       }
-    });
+    };
+
+    // If POST, include the body
+    if (req.method === 'POST' && req.body) {
+      // Forward form data
+      const formData = new URLSearchParams();
+      for (const [key, value] of Object.entries(req.body)) {
+        if (key !== 'url') { // Don't send our internal url param
+          formData.append(key, value);
+        }
+      }
+      fetchOptions.body = formData;
+    }
+
+    const response = await fetch(targetUrl, fetchOptions);
 
     // Get content type
     const contentType = response.headers.get('content-type');
@@ -302,6 +320,26 @@ app.get('/proxy', requireAuth, async (req, res) => {
         return match;
       });
       
+      // Rewrite forms to POST through proxy
+      html = html.replace(/<form([^>]*?)action="([^"]+)"/g, (match, attrs, action) => {
+        let newAction;
+        if (action.startsWith('http://') || action.startsWith('https://')) {
+          newAction = `/proxy?url=${encodeURIComponent(action)}`;
+        } else if (action.startsWith('/')) {
+          newAction = `/proxy?url=${encodeURIComponent(baseUrl + action)}`;
+        } else if (action) {
+          // Relative URL
+          const currentPath = urlObj.pathname.substring(0, urlObj.pathname.lastIndexOf('/') + 1);
+          newAction = `/proxy?url=${encodeURIComponent(baseUrl + currentPath + action)}`;
+        } else {
+          newAction = `/proxy?url=${encodeURIComponent(targetUrl)}`;
+        }
+        return `<form${attrs}action="${newAction}"`;
+      });
+      
+      // Add hidden input to forms to preserve URL
+      html = html.replace(/<\/form>/g, '</form>');
+      
       // Add base tag and back button
       html = html.replace('<head>', `<head><style>.rainbow-back{position:fixed;top:10px;left:10px;padding:10px 20px;background:rgba(0,255,153,0.9);border:none;border-radius:8px;color:#000;font-weight:700;cursor:pointer;z-index:999999;font-size:12px;text-decoration:none;}</style>`);
       html = html.replace('<body>', '<body><a href="/" class="rainbow-back">← BACK TO GATEWAY</a>');
@@ -328,7 +366,11 @@ app.get('/proxy', requireAuth, async (req, res) => {
       </html>
     `);
   }
-});
+};
+
+// Register both GET and POST for the proxy
+app.get('/proxy', requireAuth, proxyHandler);
+app.post('/proxy', requireAuth, proxyHandler);
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🌈 Rainbow Gateway on port ${PORT}`);
