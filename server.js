@@ -2,6 +2,7 @@ const express = require('express');
 const fetch = require('node-fetch');
 const { JSDOM } = require('jsdom');
 const session = require('express-session');
+const MemoryStore = require('memorystore')(session);
 const app = express();
 
 const PORT = process.env.PORT || 3000;
@@ -15,6 +16,9 @@ app.use(session({
   secret: process.env.SESSION_SECRET || 'rainbow-proxy-secret-key-change-this',
   resave: false,
   saveUninitialized: true,
+  store: new MemoryStore({
+    checkPeriod: 86400000 // prune expired entries every 24h
+  }),
   cookie: { 
     maxAge: 24 * 60 * 60 * 1000,
     secure: false,
@@ -265,6 +269,163 @@ app.get('/go', requireAuth, (req, res) => {
   
   // Just redirect directly - simple and clean
   res.redirect(targetUrl);
+});
+
+// Handle POST requests for proxy
+app.post('/p/:encodedUrl(*)', requireAuth, async (req, res) => {
+  try {
+    const decodedParam = decodeURIComponent(req.params.encodedUrl);
+    const targetUrl = Buffer.from(decodedParam, 'base64').toString('utf-8');
+    
+    console.log('POST Proxying:', targetUrl);
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 30000);
+
+    // Build form data if present
+    const formData = new URLSearchParams();
+    if (req.body) {
+      for (const [key, value] of Object.entries(req.body)) {
+        formData.append(key, value);
+      }
+    }
+
+    const response = await fetch(targetUrl, {
+      method: 'POST',
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        'Accept': '*/*',
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Referer': new URL(targetUrl).origin
+      },
+      body: formData.toString(),
+      redirect: 'follow',
+      signal: controller.signal
+    });
+
+    clearTimeout(timeout);
+
+    const contentType = response.headers.get('content-type') || '';
+    
+    res.removeHeader('Content-Security-Policy');
+    res.removeHeader('X-Frame-Options');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+
+    if (contentType.includes('text/html')) {
+      let html = await response.text();
+      const url = new URL(targetUrl);
+      const baseUrl = url.origin;
+      const basePath = targetUrl.substring(0, targetUrl.lastIndexOf('/') + 1);
+
+      req.session.proxyBase = baseUrl;
+
+      // Same URL rewriting as GET
+      html = html.replace(/(href|src|action|data|poster)=["']([^"']+)["']/gi, (match, attr, urlVal) => {
+        if (!urlVal || urlVal.startsWith('data:') || urlVal.startsWith('javascript:') || urlVal.startsWith('mailto:') || urlVal === '#') {
+          return match;
+        }
+        
+        try {
+          let absoluteUrl;
+          if (urlVal.startsWith('//')) {
+            absoluteUrl = 'https:' + urlVal;
+          } else if (urlVal.startsWith('http')) {
+            absoluteUrl = urlVal;
+          } else if (urlVal.startsWith('/')) {
+            absoluteUrl = baseUrl + urlVal;
+          } else {
+            absoluteUrl = new URL(urlVal, basePath).href;
+          }
+          const encoded = encodeURIComponent(Buffer.from(absoluteUrl).toString('base64'));
+          return `${attr}="/p/${encoded}"`;
+        } catch (e) {
+          return match;
+        }
+      });
+
+      html = html.replace(/url\(['"]?([^'")\s]+)['"]?\)/gi, (match, urlVal) => {
+        if (urlVal.startsWith('data:')) return match;
+        try {
+          let absoluteUrl;
+          if (urlVal.startsWith('//')) {
+            absoluteUrl = 'https:' + urlVal;
+          } else if (urlVal.startsWith('http')) {
+            absoluteUrl = urlVal;
+          } else if (urlVal.startsWith('/')) {
+            absoluteUrl = baseUrl + urlVal;
+          } else {
+            absoluteUrl = new URL(urlVal, basePath).href;
+          }
+          const encoded = encodeURIComponent(Buffer.from(absoluteUrl).toString('base64'));
+          return `url('/p/${encoded}')`;
+        } catch (e) {
+          return match;
+        }
+      });
+
+      const proxyScript = `
+<script>
+(function(){
+  const baseUrl = '${baseUrl}';
+  const proxyUrl = (url) => {
+    if(!url || url.startsWith('data:') || url.startsWith('javascript:') || url === '#') return url;
+    try {
+      let abs;
+      if(url.startsWith('//')) abs = 'https:' + url;
+      else if(url.startsWith('http')) abs = url;
+      else if(url.startsWith('/')) abs = baseUrl + url;
+      else abs = new URL(url, '${targetUrl}').href;
+      return '/p/' + encodeURIComponent(btoa(abs));
+    } catch(e) { return url; }
+  };
+  
+  const origFetch = window.fetch;
+  window.fetch = function(url, opts) {
+    if(typeof url === 'string') url = proxyUrl(url);
+    return origFetch(url, opts);
+  };
+  
+  const origOpen = XMLHttpRequest.prototype.open;
+  XMLHttpRequest.prototype.open = function(m, url, ...args) {
+    if(typeof url === 'string') url = proxyUrl(url);
+    return origOpen.call(this, m, url, ...args);
+  };
+  
+  try {
+    Object.defineProperty(window, 'top', {get: () => window.self});
+    Object.defineProperty(window, 'parent', {get: () => window.self});
+  } catch(e) {}
+})();
+</script>
+`;
+      
+      html = html.replace('</head>', proxyScript + '</head>');
+      if (!html.includes('</head>')) {
+        html = proxyScript + html;
+      }
+
+      res.setHeader('Content-Type', 'text/html');
+      return res.send(html);
+    }
+
+    const buffer = await response.buffer();
+    res.setHeader('Content-Type', contentType);
+    res.send(buffer);
+
+  } catch (error) {
+    console.error('POST Proxy error:', error);
+    res.status(500).send(`
+      <html>
+      <head><style>body{background:#000;color:#fff;font-family:system-ui;padding:50px;text-align:center;}</style></head>
+      <body>
+        <h1 style="color:#ff0066;">❌ Error</h1>
+        <p>${error.message}</p>
+        <a href="/" style="color:#00ff99;text-decoration:none;">← Back to Gateway</a>
+      </body>
+      </html>
+    `);
+  }
 });
 
 // FULL PROXY MODE - for when you want to actually proxy the proxy site
