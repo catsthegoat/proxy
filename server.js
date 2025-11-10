@@ -151,42 +151,42 @@ h1{font-size:48px;margin-bottom:15px;background:linear-gradient(90deg,#fff 0%,#f
 </div>
 
 <div class="proxy-grid">
-  <a href="https://www.croxyproxy.com" target="_blank" class="proxy-card">
+  <a href="/proxy?url=https%3A%2F%2Fwww.croxyproxy.com" class="proxy-card">
     <div class="proxy-icon">🔵</div>
     <div class="proxy-name">CroxyProxy</div>
     <div class="proxy-desc">Best for TikTok, Instagram, YouTube. Very reliable and fast.</div>
     <span class="proxy-tag">RECOMMENDED</span>
   </a>
 
-  <a href="https://www.blockaway.net" target="_blank" class="proxy-card">
+  <a href="/proxy?url=https%3A%2F%2Fwww.blockaway.net" class="proxy-card">
     <div class="proxy-icon">🟢</div>
     <div class="proxy-name">BlockAway</div>
     <div class="proxy-desc">Great for social media and streaming. Modern interface.</div>
     <span class="proxy-tag">FAST</span>
   </a>
 
-  <a href="https://www.croxyproxy.rocks" target="_blank" class="proxy-card">
+  <a href="/proxy?url=https%3A%2F%2Fwww.croxyproxy.rocks" class="proxy-card">
     <div class="proxy-icon">🟣</div>
     <div class="proxy-name">CroxyProxy Rocks</div>
     <div class="proxy-desc">Alternative CroxyProxy mirror. Works if main is blocked.</div>
     <span class="proxy-tag">MIRROR</span>
   </a>
 
-  <a href="https://www.proxysite.com" target="_blank" class="proxy-card">
+  <a href="/proxy?url=https%3A%2F%2Fwww.proxysite.com" class="proxy-card">
     <div class="proxy-icon">🔴</div>
     <div class="proxy-name">ProxySite</div>
     <div class="proxy-desc">Simple and clean. Good for basic browsing.</div>
     <span class="proxy-tag">SIMPLE</span>
   </a>
 
-  <a href="https://hide.me/en/proxy" target="_blank" class="proxy-card">
+  <a href="/proxy?url=https%3A%2F%2Fhide.me%2Fen%2Fproxy" class="proxy-card">
     <div class="proxy-icon">🟡</div>
     <div class="proxy-name">Hide.me</div>
     <div class="proxy-desc">Privacy-focused proxy. SSL encryption included.</div>
     <span class="proxy-tag">SECURE</span>
   </a>
 
-  <a href="https://www.plainproxies.com" target="_blank" class="proxy-card">
+  <a href="/proxy?url=https%3A%2F%2Fwww.plainproxies.com" class="proxy-card">
     <div class="proxy-icon">🟠</div>
     <div class="proxy-name">PlainProxies</div>
     <div class="proxy-desc">Clean interface. Good for social media and general browsing.</div>
@@ -235,9 +235,8 @@ function quickGo() {
     url = 'https://' + url;
   }
   
-  // Encode for CroxyProxy
-  const encoded = encodeURIComponent(url);
-  window.location.href = '/go?target=' + encoded;
+  // Go through our proxy
+  window.location.href = '/proxy?url=' + encodeURIComponent(url);
 }
 
 // Auto-disguise on blur
@@ -258,35 +257,77 @@ document.getElementById('quickUrl').addEventListener('keypress', function(e) {
 </html>`);
 });
 
-// Quick access endpoint - embeds the target site in iframe
-app.get('/go', requireAuth, (req, res) => {
-  const target = req.query.target;
-  if (!target) {
-    return res.redirect('/');
+// Actual proxy endpoint - fetches and serves content through YOUR server
+app.get('/proxy', requireAuth, async (req, res) => {
+  const targetUrl = req.query.url;
+  
+  if (!targetUrl) {
+    return res.status(400).send('Missing URL parameter');
   }
-  
-  const decoded = decodeURIComponent(target);
-  
-  res.send(`<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Clever | Portal</title>
-<link rel="icon" type="image/x-icon" href="https://clever.com/favicon.ico">
-<style>
-*{margin:0;padding:0;box-sizing:border-box;}
-body{background:#000;overflow:hidden;}
-iframe{width:100%;height:100vh;border:none;}
-.back-btn{position:fixed;top:10px;left:10px;padding:10px 20px;background:rgba(0,255,153,0.9);border:none;border-radius:8px;color:#000;font-weight:700;cursor:pointer;z-index:9999;font-size:12px;}
-.back-btn:hover{background:#00ff99;}
-</style>
-</head>
-<body>
-<button class="back-btn" onclick="window.location.href='/'">← BACK</button>
-<iframe src="${decoded}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-</body>
-</html>`);
+
+  try {
+    const response = await fetch(targetUrl, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+      }
+    });
+
+    // Get content type
+    const contentType = response.headers.get('content-type');
+    
+    // If it's HTML, rewrite links to go through proxy
+    if (contentType && contentType.includes('text/html')) {
+      let html = await response.text();
+      
+      // Basic link rewriting - make all links go through our proxy
+      const urlObj = new URL(targetUrl);
+      const baseUrl = `${urlObj.protocol}//${urlObj.host}`;
+      
+      // Rewrite relative and absolute URLs
+      html = html.replace(/href="([^"]+)"/g, (match, url) => {
+        if (url.startsWith('http://') || url.startsWith('https://')) {
+          return `href="/proxy?url=${encodeURIComponent(url)}"`;
+        } else if (url.startsWith('/')) {
+          return `href="/proxy?url=${encodeURIComponent(baseUrl + url)}"`;
+        }
+        return match;
+      });
+      
+      html = html.replace(/src="([^"]+)"/g, (match, url) => {
+        if (url.startsWith('http://') || url.startsWith('https://')) {
+          return `src="/proxy?url=${encodeURIComponent(url)}"`;
+        } else if (url.startsWith('/')) {
+          return `src="/proxy?url=${encodeURIComponent(baseUrl + url)}"`;
+        }
+        return match;
+      });
+      
+      // Add base tag and back button
+      html = html.replace('<head>', `<head><style>.rainbow-back{position:fixed;top:10px;left:10px;padding:10px 20px;background:rgba(0,255,153,0.9);border:none;border-radius:8px;color:#000;font-weight:700;cursor:pointer;z-index:999999;font-size:12px;text-decoration:none;}</style>`);
+      html = html.replace('<body>', '<body><a href="/" class="rainbow-back">← BACK TO GATEWAY</a>');
+      
+      res.send(html);
+    } else {
+      // For non-HTML content (CSS, JS, images), just pipe through
+      const buffer = await response.buffer();
+      res.set('Content-Type', contentType);
+      res.send(buffer);
+    }
+    
+  } catch (error) {
+    console.error('Proxy error:', error);
+    res.status(500).send(`
+      <!DOCTYPE html>
+      <html>
+      <head><title>Error</title></head>
+      <body style="background:#000;color:#fff;font-family:system-ui;padding:40px;text-align:center;">
+        <h1>❌ Unable to load site</h1>
+        <p>${error.message}</p>
+        <a href="/" style="color:#00ff99;">← Back to Gateway</a>
+      </body>
+      </html>
+    `);
+  }
 });
 
 app.listen(PORT, '0.0.0.0', () => {
