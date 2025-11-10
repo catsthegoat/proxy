@@ -1,18 +1,19 @@
 {
-  "name": "rainbow-proxy",
+  "name": "rainbow-gateway",
   "version": "1.0.0",
-  "description": "A rainbow-themed web proxy with password protection",
+  "description": "Rainbow Gateway Proxy",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
     "express": "^4.18.2",
+    "express-session": "^1.17.3",
+    "memorystore": "^1.6.7",
     "node-fetch": "^2.6.7",
-    "jsdom": "^22.1.0",
-    "express-session": "^1.17.3"
+    "jsdom": "^21.1.0"
   },
   "engines": {
-    "node": ">=14.x"
+    "node": ">=14.0.0"
   }
 }
