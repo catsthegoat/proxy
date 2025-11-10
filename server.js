@@ -14,10 +14,10 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(session({
   secret: process.env.SESSION_SECRET || 'rainbow-proxy-secret-key-change-this',
   resave: false,
-  saveUninitialized: false,
+  saveUninitialized: true,
   cookie: { 
     maxAge: 24 * 60 * 60 * 1000,
-    secure: process.env.NODE_ENV === 'production',
+    secure: false,
     httpOnly: true,
     sameSite: 'lax'
   },
@@ -81,10 +81,21 @@ ${error ? '<div class="error">❌ Incorrect access code</div>' : ''}
 
 app.post('/login', (req, res) => {
   const { password } = req.body;
+  console.log('Login attempt with password:', password);
+  console.log('Expected password:', ACCESS_CODE);
+  
   if (password === ACCESS_CODE) {
     req.session.authenticated = true;
-    res.redirect('/');
+    req.session.save((err) => {
+      if (err) {
+        console.error('Session save error:', err);
+        return res.redirect('/login?error=1');
+      }
+      console.log('Login successful, session saved');
+      res.redirect('/');
+    });
   } else {
+    console.log('Incorrect password');
     res.redirect('/login?error=1');
   }
 });
