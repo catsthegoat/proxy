@@ -7,8 +7,9 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const ACCESS_CODE = process.env.PROXY_PASSWORD || 'rainbow123';
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Increase payload size limits for proxied content
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 app.use(session({
   secret: process.env.SESSION_SECRET || 'rainbow-proxy-secret-key-change-this',
@@ -16,7 +17,7 @@ app.use(session({
   saveUninitialized: false,
   cookie: { 
     maxAge: 24 * 60 * 60 * 1000,
-    secure: false,
+    secure: process.env.NODE_ENV === 'production',
     httpOnly: true,
     sameSite: 'lax'
   },
@@ -28,6 +29,11 @@ app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Methods', '*');
   res.setHeader('Access-Control-Allow-Headers', '*');
   next();
+});
+
+// Health check endpoint for Render
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');
 });
 
 const requireAuth = (req, res, next) => {
@@ -258,6 +264,10 @@ app.get('/p/:encodedUrl(*)', requireAuth, async (req, res) => {
     
     console.log('Proxying:', targetUrl);
 
+    // Add timeout to prevent hanging requests
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
     const response = await fetch(targetUrl, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
@@ -265,8 +275,11 @@ app.get('/p/:encodedUrl(*)', requireAuth, async (req, res) => {
         'Accept-Language': 'en-US,en;q=0.9',
         'Referer': new URL(targetUrl).origin
       },
-      redirect: 'follow'
+      redirect: 'follow',
+      signal: controller.signal
     });
+
+    clearTimeout(timeout);
 
     const contentType = response.headers.get('content-type') || '';
     
@@ -402,6 +415,8 @@ app.get('/p/:encodedUrl(*)', requireAuth, async (req, res) => {
 
   } catch (error) {
     console.error('Proxy error:', error);
+    
+    // Send a simpler error response
     res.status(500).send(`
       <html>
       <head><style>body{background:#000;color:#fff;font-family:system-ui;padding:50px;text-align:center;}</style></head>
@@ -415,9 +430,10 @@ app.get('/p/:encodedUrl(*)', requireAuth, async (req, res) => {
   }
 });
 
-app.get('*', requireAuth, (req, res, next) => {
-  if (req.path === '/' || req.path === '/login' || req.path === '/logout' || req.path === '/go' || req.path.startsWith('/p/')) {
-    return next();
+// Catch-all route should be last
+app.get('*', requireAuth, (req, res) => {
+  if (req.path === '/' || req.path === '/login' || req.path === '/logout' || req.path === '/go' || req.path.startsWith('/p/') || req.path === '/health') {
+    return;
   }
 
   if (req.session.proxyBase) {
@@ -427,6 +443,12 @@ app.get('*', requireAuth, (req, res, next) => {
   }
 
   res.redirect('/');
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error('Server error:', err);
+  res.status(500).send('Internal Server Error');
 });
 
 app.listen(PORT, '0.0.0.0', () => {
