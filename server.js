@@ -150,49 +150,49 @@ h1{font-size:48px;margin-bottom:15px;background:linear-gradient(90deg,#fff 0%,#f
     <span class="proxy-tag">FULL ACCESS</span>
   </a>
 
-  <a href="https://scramjet-proxy.onrender.com/search/https://www.tiktok.com" target="_blank" class="proxy-card">
+  <a href="https://scramjet-proxy.onrender.com" target="_blank" class="proxy-card" onclick="openProxy(event, 'https://www.tiktok.com')">
     <div class="proxy-icon">🎵</div>
     <div class="proxy-name">TikTok</div>
     <div class="proxy-desc">Watch and create videos. Full login support. Posting works!</div>
     <span class="proxy-tag">WORKING</span>
   </a>
 
-  <a href="https://scramjet-proxy.onrender.com/search/https://www.snapchat.com" target="_blank" class="proxy-card">
+  <a href="https://scramjet-proxy.onrender.com" target="_blank" class="proxy-card" onclick="openProxy(event, 'https://www.snapchat.com')">
     <div class="proxy-icon">👻</div>
     <div class="proxy-name">Snapchat</div>
     <div class="proxy-desc">Send snaps and chat with friends. Login works perfectly!</div>
     <span class="proxy-tag">WORKING</span>
   </a>
 
-  <a href="https://scramjet-proxy.onrender.com/search/https://www.instagram.com" target="_blank" class="proxy-card">
+  <a href="https://scramjet-proxy.onrender.com" target="_blank" class="proxy-card" onclick="openProxy(event, 'https://www.instagram.com')">
     <div class="proxy-icon">📸</div>
     <div class="proxy-name">Instagram</div>
     <div class="proxy-desc">Browse feed, post stories, and DM. Full login support!</div>
     <span class="proxy-tag">WORKING</span>
   </a>
 
-  <a href="https://scramjet-proxy.onrender.com/search/https://www.youtube.com" target="_blank" class="proxy-card">
+  <a href="https://scramjet-proxy.onrender.com" target="_blank" class="proxy-card" onclick="openProxy(event, 'https://www.youtube.com')">
     <div class="proxy-icon">▶️</div>
     <div class="proxy-name">YouTube</div>
     <div class="proxy-desc">Watch videos, subscribe to channels. Login works!</div>
     <span class="proxy-tag">WORKING</span>
   </a>
 
-  <a href="https://scramjet-proxy.onrender.com/search/https://discord.com" target="_blank" class="proxy-card">
+  <a href="https://scramjet-proxy.onrender.com" target="_blank" class="proxy-card" onclick="openProxy(event, 'https://discord.com')">
     <div class="proxy-icon">💬</div>
     <div class="proxy-name">Discord</div>
     <div class="proxy-desc">Chat with friends and join servers. Full access!</div>
     <span class="proxy-tag">WORKING</span>
   </a>
 
-  <a href="https://scramjet-proxy.onrender.com/search/https://www.reddit.com" target="_blank" class="proxy-card">
+  <a href="https://scramjet-proxy.onrender.com" target="_blank" class="proxy-card" onclick="openProxy(event, 'https://www.reddit.com')">
     <div class="proxy-icon">🤖</div>
     <div class="proxy-name">Reddit</div>
     <div class="proxy-desc">Browse and comment on all subreddits. Login works!</div>
     <span class="proxy-tag">WORKING</span>
   </a>
 
-  <a href="https://scramjet-proxy.onrender.com/search/https://twitter.com" target="_blank" class="proxy-card">
+  <a href="https://scramjet-proxy.onrender.com" target="_blank" class="proxy-card" onclick="openProxy(event, 'https://twitter.com')">
     <div class="proxy-icon">🐦</div>
     <div class="proxy-name">Twitter / X</div>
     <div class="proxy-desc">Tweet, retweet, and follow. Full access with login!</div>
@@ -245,8 +245,15 @@ function quickGo() {
     url = 'https://' + url;
   }
   
-  // Open Scramjet with the URL
-  window.open('https://scramjet-proxy.onrender.com/search/' + encodeURIComponent(url), '_blank');
+  // Store URL and open Scramjet
+  localStorage.setItem('scramjet_target', url);
+  window.open('https://scramjet-proxy.onrender.com', '_blank');
+}
+
+function openProxy(event, targetUrl) {
+  event.preventDefault();
+  localStorage.setItem('scramjet_target', targetUrl);
+  window.open('https://scramjet-proxy.onrender.com', '_blank');
 }
 
 // Auto-disguise on blur
