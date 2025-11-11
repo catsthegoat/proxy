@@ -44,8 +44,8 @@ app.get('/login', (req, res) => {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Clever | Portal</title>
-<link rel="icon" type="image/x-icon" href="https://clever.com/favicon.ico">
+<title>Coinbase</title>
+<link rel="icon" type="image/x-icon" href="https://www.coinbase.com/favicon.ico">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:system-ui;background:#000;color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center;}
@@ -146,58 +146,58 @@ h1{font-size:48px;margin-bottom:15px;background:linear-gradient(90deg,#fff 0%,#f
   <a href="https://scramjet-proxy.onrender.com" target="_blank" class="proxy-card">
     <div class="proxy-icon">🚀</div>
     <div class="proxy-name">Launch Proxy</div>
-    <div class="proxy-desc">Access ANY blocked site with full login support. TikTok, Snapchat, Instagram, Discord - everything works!</div>
+    <div class="proxy-desc">Click here to open the proxy. Then type any website you want to visit!</div>
     <span class="proxy-tag">FULL ACCESS</span>
   </a>
 
-  <a href="https://scramjet-proxy.onrender.com" target="_blank" class="proxy-card" onclick="openProxy(event, 'https://www.tiktok.com')">
+  <div class="proxy-card" onclick="openScramjetSite('tiktok.com')">
     <div class="proxy-icon">🎵</div>
     <div class="proxy-name">TikTok</div>
     <div class="proxy-desc">Watch and create videos. Full login support. Posting works!</div>
     <span class="proxy-tag">WORKING</span>
-  </a>
+  </div>
 
-  <a href="https://scramjet-proxy.onrender.com" target="_blank" class="proxy-card" onclick="openProxy(event, 'https://www.snapchat.com')">
+  <div class="proxy-card" onclick="openScramjetSite('snapchat.com')">
     <div class="proxy-icon">👻</div>
     <div class="proxy-name">Snapchat</div>
     <div class="proxy-desc">Send snaps and chat with friends. Login works perfectly!</div>
     <span class="proxy-tag">WORKING</span>
-  </a>
+  </div>
 
-  <a href="https://scramjet-proxy.onrender.com" target="_blank" class="proxy-card" onclick="openProxy(event, 'https://www.instagram.com')">
+  <div class="proxy-card" onclick="openScramjetSite('instagram.com')">
     <div class="proxy-icon">📸</div>
     <div class="proxy-name">Instagram</div>
     <div class="proxy-desc">Browse feed, post stories, and DM. Full login support!</div>
     <span class="proxy-tag">WORKING</span>
-  </a>
+  </div>
 
-  <a href="https://scramjet-proxy.onrender.com" target="_blank" class="proxy-card" onclick="openProxy(event, 'https://www.youtube.com')">
+  <div class="proxy-card" onclick="openScramjetSite('youtube.com')">
     <div class="proxy-icon">▶️</div>
     <div class="proxy-name">YouTube</div>
     <div class="proxy-desc">Watch videos, subscribe to channels. Login works!</div>
     <span class="proxy-tag">WORKING</span>
-  </a>
+  </div>
 
-  <a href="https://scramjet-proxy.onrender.com" target="_blank" class="proxy-card" onclick="openProxy(event, 'https://discord.com')">
+  <div class="proxy-card" onclick="openScramjetSite('discord.com')">
     <div class="proxy-icon">💬</div>
     <div class="proxy-name">Discord</div>
     <div class="proxy-desc">Chat with friends and join servers. Full access!</div>
     <span class="proxy-tag">WORKING</span>
-  </a>
+  </div>
 
-  <a href="https://scramjet-proxy.onrender.com" target="_blank" class="proxy-card" onclick="openProxy(event, 'https://www.reddit.com')">
+  <div class="proxy-card" onclick="openScramjetSite('reddit.com')">
     <div class="proxy-icon">🤖</div>
     <div class="proxy-name">Reddit</div>
     <div class="proxy-desc">Browse and comment on all subreddits. Login works!</div>
     <span class="proxy-tag">WORKING</span>
-  </a>
+  </div>
 
-  <a href="https://scramjet-proxy.onrender.com" target="_blank" class="proxy-card" onclick="openProxy(event, 'https://twitter.com')">
+  <div class="proxy-card" onclick="openScramjetSite('twitter.com')">
     <div class="proxy-icon">🐦</div>
     <div class="proxy-name">Twitter / X</div>
     <div class="proxy-desc">Tweet, retweet, and follow. Full access with login!</div>
     <span class="proxy-tag">WORKING</span>
-  </a>
+  </div>
 </div>
 
 <div class="note">
@@ -207,7 +207,7 @@ h1{font-size:48px;margin-bottom:15px;background:linear-gradient(90deg,#fff 0%,#f
   3. OR use Quick Access above to type any website<br>
   4. Login with your real accounts - they work!<br>
   <br>
-  <strong>🎭 Tab Disguise:</strong> Shows "Clever | Portal" so teachers think you're on Clever<br>
+  <strong>🎭 Tab Disguise:</strong> Shows "Coinbase" so teachers think you're checking crypto prices<br>
   <strong>🔒 Privacy:</strong> Your school only sees you visiting Rainbow Gateway, not the actual sites!<br>
   <br>
   <strong>⚡ Pro Tip:</strong> First load is slow (15-20 seconds), but then it's fast. This is normal for free hosting!
@@ -222,8 +222,8 @@ function toggleDisguise() {
   const btn = document.querySelector('.disguise-btn');
   
   if (disguised) {
-    document.title = 'Clever | Portal';
-    document.querySelector('link[rel="icon"]').href = 'https://clever.com/favicon.ico';
+    document.title = 'Coinbase';
+    document.querySelector('link[rel="icon"]').href = 'https://www.coinbase.com/favicon.ico';
     btn.textContent = '🎭 Disguise: ON';
     btn.style.background = 'rgba(0,255,153,0.3)';
     btn.style.color = '#00ff99';
@@ -245,23 +245,32 @@ function quickGo() {
     url = 'https://' + url;
   }
   
-  // Store URL and open Scramjet
-  localStorage.setItem('scramjet_target', url);
-  window.open('https://scramjet-proxy.onrender.com', '_blank');
+  openScramjetSite(url);
+}
+
+function openScramjetSite(url) {
+  // Open Scramjet and show alert with instructions
+  const win = window.open('https://scramjet-proxy.onrender.com', '_blank');
+  
+  // Copy URL to clipboard
+  navigator.clipboard.writeText(url).then(() => {
+    alert(`🚀 SCRAMJET OPENED!\n\n📋 "${url}" copied to clipboard!\n\n✅ PASTE IT in the Scramjet search bar and press Enter!`);
+  }).catch(() => {
+    alert(`🚀 SCRAMJET OPENED!\n\n✍️ Type "${url}" in the search bar and press Enter!`);
+  });
 }
 
 function openProxy(event, targetUrl) {
   event.preventDefault();
-  localStorage.setItem('scramjet_target', targetUrl);
-  window.open('https://scramjet-proxy.onrender.com', '_blank');
+  openScramjetSite(targetUrl);
 }
 
 // Auto-disguise on blur
 document.addEventListener('visibilitychange', function() {
   if (document.hidden) {
     disguised = true;
-    document.title = 'Clever | Portal';
-    document.querySelector('link[rel="icon"]').href = 'https://clever.com/favicon.ico';
+    document.title = 'Coinbase';
+    document.querySelector('link[rel="icon"]').href = 'https://www.coinbase.com/favicon.ico';
   }
 });
 
