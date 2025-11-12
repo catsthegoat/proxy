@@ -247,33 +247,30 @@ function quickGo() {
 }
 
 function openScramjetSite(url) {
-  // Encode the URL for Scramjet
-  const encoded = encodeScramjet(url);
+  // Scramjet encoding for the URL
+  // Remove protocol
+  url = url.replace('https://', '').replace('http://', '');
+  
+  // Encode: . becomes %2C, / becomes %2F, : becomes %3A
+  let encoded = 'hvtrs8%2F-';
+  for (let i = 0; i < url.length; i++) {
+    const char = url[i];
+    if (char === '.') {
+      encoded += '%2C';
+    } else if (char === '/') {
+      encoded += '%2F';
+    } else if (char === ':') {
+      encoded += '%3A';
+    } else {
+      encoded += char;
+    }
+  }
+  
   // Open directly to the encoded URL
   window.open('https://scramjet-proxy.onrender.com/service/' + encoded, '_blank');
 }
 
-function encodeScramjet(url) {
-  // Remove protocol
-  url = url.replace('https://', '').replace('http://', '');
-  
-  // Scramjet encoding: replace chars
-  let encoded = '';
-  for (let i = 0; i < url.length; i++) {
-    const char = url[i];
-    if (char === ':') encoded += '%3A';
-    else if (char === '/') encoded += '%2F';
-    else if (char === '.') encoded += '%2C';
-    else encoded += char;
-  }
-  
-  return 'hvtrs8%2F-' + encoded;
-}
 
-function openProxy(event, targetUrl) {
-  event.preventDefault();
-  openScramjetSite(targetUrl);
-}
 
 document.addEventListener('visibilitychange', function() {
   if (document.hidden) {
