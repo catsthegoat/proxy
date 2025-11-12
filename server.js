@@ -150,54 +150,56 @@ h1{font-size:48px;margin-bottom:15px;background:linear-gradient(90deg,#fff 0%,#f
     <span class="proxy-tag">FULL ACCESS</span>
   </a>
 
-  <div class="proxy-card" onclick="openScramjetSite('tiktok.com')">
+  <a href="https://scramjet-proxy.onrender.com/service/hvtrs8%2F-wuw%2Ctiktok%2Ccmm" target="_blank" class="proxy-card">
     <div class="proxy-icon">🎵</div>
     <div class="proxy-name">TikTok</div>
     <div class="proxy-desc">Watch and create videos. Full login support. Posting works!</div>
     <span class="proxy-tag">WORKING</span>
-  </div>
+  </a>
 
-  <div class="proxy-card" onclick="openScramjetSite('snapchat.com')">
+  <a href="https://scramjet-proxy.onrender.com/service/hvtrs8%2F-wuw%2Csnaocha
+
+t%2Ccmm" target="_blank" class="proxy-card">
     <div class="proxy-icon">👻</div>
     <div class="proxy-name">Snapchat</div>
     <div class="proxy-desc">Send snaps and chat with friends. Login works perfectly!</div>
     <span class="proxy-tag">WORKING</span>
-  </div>
+  </a>
 
-  <div class="proxy-card" onclick="openScramjetSite('instagram.com')">
+  <a href="https://scramjet-proxy.onrender.com/service/hvtrs8%2F-wuw%2Cinqtagrm%2Ccmm" target="_blank" class="proxy-card">
     <div class="proxy-icon">📸</div>
     <div class="proxy-name">Instagram</div>
     <div class="proxy-desc">Browse feed, post stories, and DM. Full login support!</div>
     <span class="proxy-tag">WORKING</span>
-  </div>
+  </a>
 
-  <div class="proxy-card" onclick="openScramjetSite('youtube.com')">
+  <a href="https://scramjet-proxy.onrender.com/service/hvtrs8%2F-wuw%2Cymutu`e%2Ccmm" target="_blank" class="proxy-card">
     <div class="proxy-icon">▶️</div>
     <div class="proxy-name">YouTube</div>
     <div class="proxy-desc">Watch videos, subscribe to channels. Login works!</div>
     <span class="proxy-tag">WORKING</span>
-  </div>
+  </a>
 
-  <div class="proxy-card" onclick="openScramjetSite('discord.com')">
+  <a href="https://scramjet-proxy.onrender.com/service/hvtrs8%2F-discord%2Ccmm" target="_blank" class="proxy-card">
     <div class="proxy-icon">💬</div>
     <div class="proxy-name">Discord</div>
     <div class="proxy-desc">Chat with friends and join servers. Full access!</div>
     <span class="proxy-tag">WORKING</span>
-  </div>
+  </a>
 
-  <div class="proxy-card" onclick="openScramjetSite('reddit.com')">
+  <a href="https://scramjet-proxy.onrender.com/service/hvtrs8%2F-wuw%2Creffit%2Ccmm" target="_blank" class="proxy-card">
     <div class="proxy-icon">🤖</div>
     <div class="proxy-name">Reddit</div>
     <div class="proxy-desc">Browse and comment on all subreddits. Login works!</div>
     <span class="proxy-tag">WORKING</span>
-  </div>
+  </a>
 
-  <div class="proxy-card" onclick="openScramjetSite('twitter.com')">
+  <a href="https://scramjet-proxy.onrender.com/service/hvtrs8%2F-twitper%2Ccmm" target="_blank" class="proxy-card">
     <div class="proxy-icon">🐦</div>
     <div class="proxy-name">Twitter / X</div>
     <div class="proxy-desc">Tweet, retweet, and follow. Full access with login!</div>
     <span class="proxy-tag">WORKING</span>
-  </div>
+  </a>
 </div>
 
 <div class="note">
