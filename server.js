@@ -157,23 +157,21 @@ h1{font-size:48px;margin-bottom:15px;background:linear-gradient(90deg,#fff 0%,#f
     <span class="proxy-tag">WORKING</span>
   </a>
 
-  <a href="https://scramjet-proxy.onrender.com/service/hvtrs8%2F-wuw%2Csnaocha
-
-t%2Ccmm" target="_blank" class="proxy-card">
+  <a href="https://scramjet-proxy.onrender.com/service/hvtrs8%2F-wuw%2Csnapchat%2Ccmm" target="_blank" class="proxy-card">
     <div class="proxy-icon">👻</div>
     <div class="proxy-name">Snapchat</div>
     <div class="proxy-desc">Send snaps and chat with friends. Login works perfectly!</div>
     <span class="proxy-tag">WORKING</span>
   </a>
 
-  <a href="https://scramjet-proxy.onrender.com/service/hvtrs8%2F-wuw%2Cinqtagrm%2Ccmm" target="_blank" class="proxy-card">
+  <a href="https://scramjet-proxy.onrender.com/service/hvtrs8%2F-wuw%2Cinstagram%2Ccmm" target="_blank" class="proxy-card">
     <div class="proxy-icon">📸</div>
     <div class="proxy-name">Instagram</div>
     <div class="proxy-desc">Browse feed, post stories, and DM. Full login support!</div>
     <span class="proxy-tag">WORKING</span>
   </a>
 
-  <a href="https://scramjet-proxy.onrender.com/service/hvtrs8%2F-wuw%2Cymutu`e%2Ccmm" target="_blank" class="proxy-card">
+  <a href="https://scramjet-proxy.onrender.com/service/hvtrs8%2F-wuw%2Cyoutube%2Ccmm" target="_blank" class="proxy-card">
     <div class="proxy-icon">▶️</div>
     <div class="proxy-name">YouTube</div>
     <div class="proxy-desc">Watch videos, subscribe to channels. Login works!</div>
@@ -187,14 +185,14 @@ t%2Ccmm" target="_blank" class="proxy-card">
     <span class="proxy-tag">WORKING</span>
   </a>
 
-  <a href="https://scramjet-proxy.onrender.com/service/hvtrs8%2F-wuw%2Creffit%2Ccmm" target="_blank" class="proxy-card">
+  <a href="https://scramjet-proxy.onrender.com/service/hvtrs8%2F-wuw%2Creddit%2Ccmm" target="_blank" class="proxy-card">
     <div class="proxy-icon">🤖</div>
     <div class="proxy-name">Reddit</div>
     <div class="proxy-desc">Browse and comment on all subreddits. Login works!</div>
     <span class="proxy-tag">WORKING</span>
   </a>
 
-  <a href="https://scramjet-proxy.onrender.com/service/hvtrs8%2F-twitper%2Ccmm" target="_blank" class="proxy-card">
+  <a href="https://scramjet-proxy.onrender.com/service/hvtrs8%2F-twitter%2Ccmm" target="_blank" class="proxy-card">
     <div class="proxy-icon">🐦</div>
     <div class="proxy-name">Twitter / X</div>
     <div class="proxy-desc">Tweet, retweet, and follow. Full access with login!</div>
