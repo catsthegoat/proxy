@@ -45,7 +45,7 @@ app.get('/login', (req, res) => {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Coinbase</title>
-<link rel="icon" type="image/x-icon" href="https://www.coinbase.com/favicon.ico">
+<link rel="icon" href="https://images.ctfassets.net/q5ulk4bp65r7/3TBS4oVkD1ghowTqVQJlqj/2dfd4ea3b623a7c0d8deb2ff445dee9e/Consumer_Wordmark.svg">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:system-ui;background:#000;color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center;}
@@ -223,13 +223,13 @@ function toggleDisguise() {
   
   if (disguised) {
     document.title = 'Coinbase';
-    document.querySelector('link[rel="icon"]').href = 'https://www.coinbase.com/favicon.ico';
+    document.querySelector('link[rel="icon"]').href = 'https://images.ctfassets.net/q5ulk4bp65r7/3TBS4oVkD1ghowTqVQJlqj/2dfd4ea3b623a7c0d8deb2ff445dee9e/Consumer_Wordmark.svg';
     btn.textContent = '🎭 Disguise: ON';
     btn.style.background = 'rgba(0,255,153,0.3)';
     btn.style.color = '#00ff99';
   } else {
     document.title = 'Rainbow Gateway';
-    document.querySelector('link[rel="icon"]').href = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🌈</text></svg>';
+    document.querySelector('link[rel="icon"]').href = 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌈</text></svg>';
     btn.textContent = '🎭 Disguise: OFF';
     btn.style.background = 'rgba(255,0,0,0.3)';
     btn.style.color = '#ff6666';
@@ -270,7 +270,7 @@ document.addEventListener('visibilitychange', function() {
   if (document.hidden) {
     disguised = true;
     document.title = 'Coinbase';
-    document.querySelector('link[rel="icon"]').href = 'https://www.coinbase.com/favicon.ico';
+    document.querySelector('link[rel="icon"]').href = 'https://images.ctfassets.net/q5ulk4bp65r7/3TBS4oVkD1ghowTqVQJlqj/2dfd4ea3b623a7c0d8deb2ff445dee9e/Consumer_Wordmark.svg';
   }
 });
 
