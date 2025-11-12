@@ -240,7 +240,6 @@ function quickGo() {
   let url = document.getElementById('quickUrl').value.trim();
   if (!url) return;
   
-  // Add https:// if not present
   if (!url.startsWith('http://') && !url.startsWith('https://')) {
     url = 'https://' + url;
   }
@@ -249,14 +248,12 @@ function quickGo() {
 }
 
 function openScramjetSite(url) {
-  // Open Scramjet and show alert with instructions
   const win = window.open('https://scramjet-proxy.onrender.com', '_blank');
   
-  // Copy URL to clipboard
   navigator.clipboard.writeText(url).then(() => {
-    alert(`🚀 SCRAMJET OPENED!\n\n📋 "${url}" copied to clipboard!\n\n✅ PASTE IT in the Scramjet search bar and press Enter!`);
+    alert('🚀 SCRAMJET OPENED!\\n\\n📋 "' + url + '" copied to clipboard!\\n\\n✅ PASTE IT in the Scramjet search bar and press Enter!');
   }).catch(() => {
-    alert(`🚀 SCRAMJET OPENED!\n\n✍️ Type "${url}" in the search bar and press Enter!`);
+    alert('🚀 SCRAMJET OPENED!\\n\\n✍️ Type "' + url + '" in the search bar and press Enter!');
   });
 }
 
@@ -265,7 +262,6 @@ function openProxy(event, targetUrl) {
   openScramjetSite(targetUrl);
 }
 
-// Auto-disguise on blur
 document.addEventListener('visibilitychange', function() {
   if (document.hidden) {
     disguised = true;
@@ -274,7 +270,6 @@ document.addEventListener('visibilitychange', function() {
   }
 });
 
-// Allow Enter key in quick access
 document.getElementById('quickUrl').addEventListener('keypress', function(e) {
   if (e.key === 'Enter') quickGo();
 });
@@ -283,7 +278,8 @@ document.getElementById('quickUrl').addEventListener('keypress', function(e) {
 </html>`);
 });
 
-app.listen(PORT, '0.0.0.0', () => {
+// Fixed: Removed '0.0.0.0' - let the platform handle binding
+app.listen(PORT, () => {
   console.log(`🌈 Rainbow Gateway running on port ${PORT}`);
   console.log(`🔒 Password: ${ACCESS_CODE}`);
   console.log(`🚀 Proxy: https://scramjet-proxy.onrender.com`);
