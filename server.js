@@ -143,56 +143,56 @@ h1{font-size:48px;margin-bottom:15px;background:linear-gradient(90deg,#fff 0%,#f
 </div>
 
 <div class="proxy-grid">
-  <div class="proxy-card" style="background:rgba(255,0,0,0.1);border-color:rgba(255,0,0,0.3);">
-    <div class="proxy-icon">⚠️</div>
-    <div class="proxy-name">Setup Required</div>
-    <div class="proxy-desc">You need to deploy your own proxy first! See instructions below.</div>
-    <span class="proxy-tag" style="background:rgba(255,0,0,0.2);border-color:rgba(255,0,0,0.4);color:#ff6666;">ACTION NEEDED</span>
-  </div>
+  <a href="https://scramjet-proxy.onrender.com" target="_blank" class="proxy-card">
+    <div class="proxy-icon">🚀</div>
+    <div class="proxy-name">Launch Proxy</div>
+    <div class="proxy-desc">Click here to open the proxy. Then type any website you want to visit!</div>
+    <span class="proxy-tag">FULL ACCESS</span>
+  </a>
 
-  <a href="#" onclick="openScramjetSite('https://www.tiktok.com'); return false;" class="proxy-card">
+  <a href="https://scramjet-proxy.onrender.com/service/hvtrs8%2F-wuw%2Ctiktok%2Ccmm" target="_blank" class="proxy-card">
     <div class="proxy-icon">🎵</div>
     <div class="proxy-name">TikTok</div>
     <div class="proxy-desc">Watch and create videos. Full login support. Posting works!</div>
     <span class="proxy-tag">WORKING</span>
   </a>
 
-  <a href="#" onclick="openScramjetSite('https://www.snapchat.com'); return false;" class="proxy-card">
+  <a href="https://scramjet-proxy.onrender.com/service/hvtrs8%2F-wuw%2Csnapchat%2Ccmm" target="_blank" class="proxy-card">
     <div class="proxy-icon">👻</div>
     <div class="proxy-name">Snapchat</div>
     <div class="proxy-desc">Send snaps and chat with friends. Login works perfectly!</div>
     <span class="proxy-tag">WORKING</span>
   </a>
 
-  <a href="#" onclick="openScramjetSite('https://www.instagram.com'); return false;" class="proxy-card">
+  <a href="https://scramjet-proxy.onrender.com/service/hvtrs8%2F-wuw%2Cinstagram%2Ccmm" target="_blank" class="proxy-card">
     <div class="proxy-icon">📸</div>
     <div class="proxy-name">Instagram</div>
     <div class="proxy-desc">Browse feed, post stories, and DM. Full login support!</div>
     <span class="proxy-tag">WORKING</span>
   </a>
 
-  <a href="#" onclick="openScramjetSite('https://www.youtube.com'); return false;" class="proxy-card">
+  <a href="https://scramjet-proxy.onrender.com/service/hvtrs8%2F-wuw%2Cyoutube%2Ccmm" target="_blank" class="proxy-card">
     <div class="proxy-icon">▶️</div>
     <div class="proxy-name">YouTube</div>
     <div class="proxy-desc">Watch videos, subscribe to channels. Login works!</div>
     <span class="proxy-tag">WORKING</span>
   </a>
 
-  <a href="#" onclick="openScramjetSite('https://discord.com'); return false;" class="proxy-card">
+  <a href="https://scramjet-proxy.onrender.com/service/hvtrs8%2F-discord%2Ccmm" target="_blank" class="proxy-card">
     <div class="proxy-icon">💬</div>
     <div class="proxy-name">Discord</div>
     <div class="proxy-desc">Chat with friends and join servers. Full access!</div>
     <span class="proxy-tag">WORKING</span>
   </a>
 
-  <a href="#" onclick="openScramjetSite('https://www.reddit.com'); return false;" class="proxy-card">
+  <a href="https://scramjet-proxy.onrender.com/service/hvtrs8%2F-wuw%2Creddit%2Ccmm" target="_blank" class="proxy-card">
     <div class="proxy-icon">🤖</div>
     <div class="proxy-name">Reddit</div>
     <div class="proxy-desc">Browse and comment on all subreddits. Login works!</div>
     <span class="proxy-tag">WORKING</span>
   </a>
 
-  <a href="#" onclick="openScramjetSite('https://twitter.com'); return false;" class="proxy-card">
+  <a href="https://scramjet-proxy.onrender.com/service/hvtrs8%2F-twitter%2Ccmm" target="_blank" class="proxy-card">
     <div class="proxy-icon">🐦</div>
     <div class="proxy-name">Twitter / X</div>
     <div class="proxy-desc">Tweet, retweet, and follow. Full access with login!</div>
@@ -202,9 +202,10 @@ h1{font-size:48px;margin-bottom:15px;background:linear-gradient(90deg,#fff 0%,#f
 
 <div class="note">
   <strong>💡 How to use:</strong><br>
-  1. Click any site button - it goes DIRECTLY there instantly!<br>
-  2. OR use Quick Access to type any website you want<br>
-  3. Login with your real accounts - they work perfectly!<br>
+  1. Click "Launch Proxy" to access the proxy search page<br>
+  2. OR click any specific site card to go directly there<br>
+  3. OR use Quick Access above to type any website<br>
+  4. Login with your real accounts - they work!<br>
   <br>
   <strong>🎭 Tab Disguise:</strong> Shows "Coinbase" so teachers think you're checking crypto prices<br>
   <strong>🔒 Privacy:</strong> Your school only sees you visiting Rainbow Gateway, not the actual sites!<br>
@@ -247,30 +248,19 @@ function quickGo() {
 }
 
 function openScramjetSite(url) {
-  // Scramjet encoding for the URL
-  // Remove protocol
-  url = url.replace('https://', '').replace('http://', '');
+  const win = window.open('https://scramjet-proxy.onrender.com', '_blank');
   
-  // Encode: . becomes %2C, / becomes %2F, : becomes %3A
-  let encoded = 'hvtrs8%2F-';
-  for (let i = 0; i < url.length; i++) {
-    const char = url[i];
-    if (char === '.') {
-      encoded += '%2C';
-    } else if (char === '/') {
-      encoded += '%2F';
-    } else if (char === ':') {
-      encoded += '%3A';
-    } else {
-      encoded += char;
-    }
-  }
-  
-  // Open directly to the encoded URL
-  window.open('https://scramjet-proxy.onrender.com/service/' + encoded, '_blank');
+  navigator.clipboard.writeText(url).then(() => {
+    alert('🚀 SCRAMJET OPENED!\\n\\n📋 "' + url + '" copied to clipboard!\\n\\n✅ PASTE IT in the Scramjet search bar and press Enter!');
+  }).catch(() => {
+    alert('🚀 SCRAMJET OPENED!\\n\\n✍️ Type "' + url + '" in the search bar and press Enter!');
+  });
 }
 
-
+function openProxy(event, targetUrl) {
+  event.preventDefault();
+  openScramjetSite(targetUrl);
+}
 
 document.addEventListener('visibilitychange', function() {
   if (document.hidden) {
