@@ -44,8 +44,8 @@ app.get('/login', (req, res) => {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Coinbase</title>
-<link rel="icon" href="https://images.ctfassets.net/q5ulk4bp65r7/3TBS4oVkD1ghowTqVQJlqj/2dfd4ea3b623a7c0d8deb2ff445dee9e/Consumer_Wordmark.svg">
+<title>Clever | Portal</title>
+<link rel="icon" type="image/x-icon" href="https://clever.com/favicon.ico">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:system-ui;background:#000;color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center;}
@@ -134,7 +134,7 @@ h1{font-size:48px;margin-bottom:15px;background:linear-gradient(90deg,#fff 0%,#f
 <a href="/logout" class="logout">🔒 Logout</a>
 <div class="container">
 <h1>🌈 RAINBOW GATEWAY</h1>
-<div class="subtitle">Your Protected Access Point - Now with FULL Social Media Access!</div>
+<div class="subtitle">Your Protected Access Point - Full Social Media Access!</div>
 
 <div class="quick-access">
   <div class="quick-title">⚡ Quick Access - Type Any Website</div>
@@ -150,67 +150,67 @@ h1{font-size:48px;margin-bottom:15px;background:linear-gradient(90deg,#fff 0%,#f
     <span class="proxy-tag">FULL ACCESS</span>
   </a>
 
-  <a href="https://scramjet-proxy.onrender.com/service/hvtrs8%2F-wuw%2Ctiktok%2Ccmm" target="_blank" class="proxy-card">
+  <a href="#" onclick="openSite('https://www.tiktok.com'); return false;" class="proxy-card">
     <div class="proxy-icon">🎵</div>
     <div class="proxy-name">TikTok</div>
-    <div class="proxy-desc">Watch and create videos. Full login support. Posting works!</div>
-    <span class="proxy-tag">WORKING</span>
+    <div class="proxy-desc">Opens Scramjet and auto-copies TikTok URL for instant access!</div>
+    <span class="proxy-tag">AUTO-PASTE</span>
   </a>
 
-  <a href="https://scramjet-proxy.onrender.com/service/hvtrs8%2F-wuw%2Csnapchat%2Ccmm" target="_blank" class="proxy-card">
+  <a href="#" onclick="openSite('https://www.snapchat.com'); return false;" class="proxy-card">
     <div class="proxy-icon">👻</div>
     <div class="proxy-name">Snapchat</div>
-    <div class="proxy-desc">Send snaps and chat with friends. Login works perfectly!</div>
-    <span class="proxy-tag">WORKING</span>
+    <div class="proxy-desc">Opens Scramjet and auto-copies Snapchat URL. Just paste!</div>
+    <span class="proxy-tag">AUTO-PASTE</span>
   </a>
 
-  <a href="https://scramjet-proxy.onrender.com/service/hvtrs8%2F-wuw%2Cinstagram%2Ccmm" target="_blank" class="proxy-card">
+  <a href="#" onclick="openSite('https://www.instagram.com'); return false;" class="proxy-card">
     <div class="proxy-icon">📸</div>
     <div class="proxy-name">Instagram</div>
-    <div class="proxy-desc">Browse feed, post stories, and DM. Full login support!</div>
-    <span class="proxy-tag">WORKING</span>
+    <div class="proxy-desc">Opens Scramjet and auto-copies Instagram URL. Just paste!</div>
+    <span class="proxy-tag">AUTO-PASTE</span>
   </a>
 
-  <a href="https://scramjet-proxy.onrender.com/service/hvtrs8%2F-wuw%2Cyoutube%2Ccmm" target="_blank" class="proxy-card">
+  <a href="#" onclick="openSite('https://www.youtube.com'); return false;" class="proxy-card">
     <div class="proxy-icon">▶️</div>
     <div class="proxy-name">YouTube</div>
-    <div class="proxy-desc">Watch videos, subscribe to channels. Login works!</div>
-    <span class="proxy-tag">WORKING</span>
+    <div class="proxy-desc">Opens Scramjet and auto-copies YouTube URL. Just paste!</div>
+    <span class="proxy-tag">AUTO-PASTE</span>
   </a>
 
-  <a href="https://scramjet-proxy.onrender.com/service/hvtrs8%2F-discord%2Ccmm" target="_blank" class="proxy-card">
+  <a href="#" onclick="openSite('https://discord.com'); return false;" class="proxy-card">
     <div class="proxy-icon">💬</div>
     <div class="proxy-name">Discord</div>
-    <div class="proxy-desc">Chat with friends and join servers. Full access!</div>
-    <span class="proxy-tag">WORKING</span>
+    <div class="proxy-desc">Opens Scramjet and auto-copies Discord URL. Just paste!</div>
+    <span class="proxy-tag">AUTO-PASTE</span>
   </a>
 
-  <a href="https://scramjet-proxy.onrender.com/service/hvtrs8%2F-wuw%2Creddit%2Ccmm" target="_blank" class="proxy-card">
+  <a href="#" onclick="openSite('https://www.reddit.com'); return false;" class="proxy-card">
     <div class="proxy-icon">🤖</div>
     <div class="proxy-name">Reddit</div>
-    <div class="proxy-desc">Browse and comment on all subreddits. Login works!</div>
-    <span class="proxy-tag">WORKING</span>
+    <div class="proxy-desc">Opens Scramjet and auto-copies Reddit URL. Just paste!</div>
+    <span class="proxy-tag">AUTO-PASTE</span>
   </a>
 
-  <a href="https://scramjet-proxy.onrender.com/service/hvtrs8%2F-twitter%2Ccmm" target="_blank" class="proxy-card">
+  <a href="#" onclick="openSite('https://twitter.com'); return false;" class="proxy-card">
     <div class="proxy-icon">🐦</div>
     <div class="proxy-name">Twitter / X</div>
-    <div class="proxy-desc">Tweet, retweet, and follow. Full access with login!</div>
-    <span class="proxy-tag">WORKING</span>
+    <div class="proxy-desc">Opens Scramjet and auto-copies Twitter URL. Just paste!</div>
+    <span class="proxy-tag">AUTO-PASTE</span>
   </a>
 </div>
 
 <div class="note">
   <strong>💡 How to use:</strong><br>
-  1. Click "Launch Proxy" to access the proxy search page<br>
-  2. OR click any specific site card to go directly there<br>
-  3. OR use Quick Access above to type any website<br>
-  4. Login with your real accounts - they work!<br>
+  1. Click any site button below (e.g., TikTok, YouTube)<br>
+  2. Scramjet opens + URL is auto-copied to your clipboard!<br>
+  3. Just press Ctrl+V (or Cmd+V on Mac) to paste in the search bar<br>
+  4. Hit Enter and you're in! Login with your real accounts!<br>
   <br>
-  <strong>🎭 Tab Disguise:</strong> Shows "Coinbase" so teachers think you're checking crypto prices<br>
-  <strong>🔒 Privacy:</strong> Your school only sees you visiting Rainbow Gateway, not the actual sites!<br>
+  <strong>🎭 Tab Disguise:</strong> Shows "Clever | Portal" so teachers think you're on Clever<br>
+  <strong>🔒 Privacy:</strong> Your school only sees you visiting Rainbow Gateway!<br>
   <br>
-  <strong>⚡ Pro Tip:</strong> First load is slow (15-20 seconds), but then it's fast. This is normal for free hosting!
+  <strong>⚡ Pro Tip:</strong> First load is slow (15-20 seconds), but then it's super fast!
 </div>
 </div>
 
@@ -222,8 +222,8 @@ function toggleDisguise() {
   const btn = document.querySelector('.disguise-btn');
   
   if (disguised) {
-    document.title = 'Coinbase';
-    document.querySelector('link[rel="icon"]').href = 'https://images.ctfassets.net/q5ulk4bp65r7/3TBS4oVkD1ghowTqVQJlqj/2dfd4ea3b623a7c0d8deb2ff445dee9e/Consumer_Wordmark.svg';
+    document.title = 'Clever | Portal';
+    document.querySelector('link[rel="icon"]').href = 'https://clever.com/favicon.ico';
     btn.textContent = '🎭 Disguise: ON';
     btn.style.background = 'rgba(0,255,153,0.3)';
     btn.style.color = '#00ff99';
@@ -236,40 +236,47 @@ function toggleDisguise() {
   }
 }
 
+function openSite(url) {
+  // Copy URL to clipboard
+  navigator.clipboard.writeText(url).then(() => {
+    // Open Scramjet in new tab
+    window.open('https://scramjet-proxy.onrender.com', '_blank');
+    
+    // Show helpful message
+    alert('✅ SCRAMJET OPENED!\\n\\n📋 "' + url + '" copied to clipboard!\\n\\n👉 PASTE IT (Ctrl+V or Cmd+V) in the Scramjet search bar and press Enter!');
+  }).catch(() => {
+    // If clipboard fails, still open Scramjet
+    window.open('https://scramjet-proxy.onrender.com', '_blank');
+    alert('🚀 SCRAMJET OPENED!\\n\\n✍️ Type this URL: ' + url + '\\n\\nPaste it in the search bar and press Enter!');
+  });
+}
+
 function quickGo() {
   let url = document.getElementById('quickUrl').value.trim();
   if (!url) return;
   
+  // Add https:// if not present
   if (!url.startsWith('http://') && !url.startsWith('https://')) {
     url = 'https://' + url;
   }
   
-  openScramjetSite(url);
+  openSite(url);
 }
 
-function openScramjetSite(url) {
-  const win = window.open('https://scramjet-proxy.onrender.com', '_blank');
-  
-  navigator.clipboard.writeText(url).then(() => {
-    alert('🚀 SCRAMJET OPENED!\\n\\n📋 "' + url + '" copied to clipboard!\\n\\n✅ PASTE IT in the Scramjet search bar and press Enter!');
-  }).catch(() => {
-    alert('🚀 SCRAMJET OPENED!\\n\\n✍️ Type "' + url + '" in the search bar and press Enter!');
-  });
-}
-
-function openProxy(event, targetUrl) {
-  event.preventDefault();
-  openScramjetSite(targetUrl);
-}
-
+// Auto-disguise when tab loses focus
 document.addEventListener('visibilitychange', function() {
-  if (document.hidden) {
+  if (document.hidden && !disguised) {
     disguised = true;
-    document.title = 'Coinbase';
-    document.querySelector('link[rel="icon"]').href = 'https://images.ctfassets.net/q5ulk4bp65r7/3TBS4oVkD1ghowTqVQJlqj/2dfd4ea3b623a7c0d8deb2ff445dee9e/Consumer_Wordmark.svg';
+    document.title = 'Clever | Portal';
+    document.querySelector('link[rel="icon"]').href = 'https://clever.com/favicon.ico';
+    const btn = document.querySelector('.disguise-btn');
+    btn.textContent = '🎭 Disguise: ON';
+    btn.style.background = 'rgba(0,255,153,0.3)';
+    btn.style.color = '#00ff99';
   }
 });
 
+// Allow Enter key in quick access
 document.getElementById('quickUrl').addEventListener('keypress', function(e) {
   if (e.key === 'Enter') quickGo();
 });
@@ -278,9 +285,7 @@ document.getElementById('quickUrl').addEventListener('keypress', function(e) {
 </html>`);
 });
 
-// Fixed: Removed '0.0.0.0' - let the platform handle binding
 app.listen(PORT, () => {
   console.log(`🌈 Rainbow Gateway running on port ${PORT}`);
   console.log(`🔒 Password: ${ACCESS_CODE}`);
-  console.log(`🚀 Proxy: https://scramjet-proxy.onrender.com`);
 });
