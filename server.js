@@ -143,59 +143,59 @@ h1{font-size:48px;margin-bottom:15px;background:linear-gradient(90deg,#fff 0%,#f
 </div>
 
 <div class="proxy-grid">
-  <a href="https://scramjet-proxy.onrender.com" target="_blank" class="proxy-card">
+  <a href="https://your-helios-app.onrender.com" target="_blank" class="proxy-card">
     <div class="proxy-icon">🚀</div>
-    <div class="proxy-name">Launch Proxy</div>
-    <div class="proxy-desc">Click here to open the proxy. Then type any website you want to visit!</div>
+    <div class="proxy-name">Launch Helios</div>
+    <div class="proxy-desc">Click here to open the Helios proxy. Then type any website you want to visit!</div>
     <span class="proxy-tag">FULL ACCESS</span>
   </a>
 
   <a href="#" onclick="openSite('https://www.tiktok.com'); return false;" class="proxy-card">
     <div class="proxy-icon">🎵</div>
     <div class="proxy-name">TikTok</div>
-    <div class="proxy-desc">Opens Scramjet and auto-copies TikTok URL for instant access!</div>
+    <div class="proxy-desc">Opens Helios and auto-copies TikTok URL for instant access!</div>
     <span class="proxy-tag">AUTO-PASTE</span>
   </a>
 
   <a href="#" onclick="openSite('https://www.snapchat.com'); return false;" class="proxy-card">
     <div class="proxy-icon">👻</div>
     <div class="proxy-name">Snapchat</div>
-    <div class="proxy-desc">Opens Scramjet and auto-copies Snapchat URL. Just paste!</div>
+    <div class="proxy-desc">Opens Helios and auto-copies Snapchat URL. Just paste!</div>
     <span class="proxy-tag">AUTO-PASTE</span>
   </a>
 
   <a href="#" onclick="openSite('https://www.instagram.com'); return false;" class="proxy-card">
     <div class="proxy-icon">📸</div>
     <div class="proxy-name">Instagram</div>
-    <div class="proxy-desc">Opens Scramjet and auto-copies Instagram URL. Just paste!</div>
+    <div class="proxy-desc">Opens Helios and auto-copies Instagram URL. Just paste!</div>
     <span class="proxy-tag">AUTO-PASTE</span>
   </a>
 
   <a href="#" onclick="openSite('https://www.youtube.com'); return false;" class="proxy-card">
     <div class="proxy-icon">▶️</div>
     <div class="proxy-name">YouTube</div>
-    <div class="proxy-desc">Opens Scramjet and auto-copies YouTube URL. Just paste!</div>
+    <div class="proxy-desc">Opens Helios and auto-copies YouTube URL. Just paste!</div>
     <span class="proxy-tag">AUTO-PASTE</span>
   </a>
 
   <a href="#" onclick="openSite('https://discord.com'); return false;" class="proxy-card">
     <div class="proxy-icon">💬</div>
     <div class="proxy-name">Discord</div>
-    <div class="proxy-desc">Opens Scramjet and auto-copies Discord URL. Just paste!</div>
+    <div class="proxy-desc">Opens Helios and auto-copies Discord URL. Just paste!</div>
     <span class="proxy-tag">AUTO-PASTE</span>
   </a>
 
   <a href="#" onclick="openSite('https://www.reddit.com'); return false;" class="proxy-card">
     <div class="proxy-icon">🤖</div>
     <div class="proxy-name">Reddit</div>
-    <div class="proxy-desc">Opens Scramjet and auto-copies Reddit URL. Just paste!</div>
+    <div class="proxy-desc">Opens Helios and auto-copies Reddit URL. Just paste!</div>
     <span class="proxy-tag">AUTO-PASTE</span>
   </a>
 
   <a href="#" onclick="openSite('https://twitter.com'); return false;" class="proxy-card">
     <div class="proxy-icon">🐦</div>
     <div class="proxy-name">Twitter / X</div>
-    <div class="proxy-desc">Opens Scramjet and auto-copies Twitter URL. Just paste!</div>
+    <div class="proxy-desc">Opens Helios and auto-copies Twitter URL. Just paste!</div>
     <span class="proxy-tag">AUTO-PASTE</span>
   </a>
 </div>
@@ -203,7 +203,7 @@ h1{font-size:48px;margin-bottom:15px;background:linear-gradient(90deg,#fff 0%,#f
 <div class="note">
   <strong>💡 How to use:</strong><br>
   1. Click any site button below (e.g., TikTok, YouTube)<br>
-  2. Scramjet opens + URL is auto-copied to your clipboard!<br>
+  2. Helios opens + URL is auto-copied to your clipboard!<br>
   3. Just press Ctrl+V (or Cmd+V on Mac) to paste in the search bar<br>
   4. Hit Enter and you're in! Login with your real accounts!<br>
   <br>
@@ -216,6 +216,7 @@ h1{font-size:48px;margin-bottom:15px;background:linear-gradient(90deg,#fff 0%,#f
 
 <script>
 let disguised = true;
+const HELIOS_URL = 'https://your-helios-app.onrender.com';
 
 function toggleDisguise() {
   disguised = !disguised;
@@ -239,15 +240,15 @@ function toggleDisguise() {
 function openSite(url) {
   // Copy URL to clipboard
   navigator.clipboard.writeText(url).then(() => {
-    // Open Scramjet in new tab
-    window.open('https://scramjet-proxy.onrender.com', '_blank');
+    // Open Helios in new tab
+    window.open(HELIOS_URL, '_blank');
     
     // Show helpful message
-    alert('✅ SCRAMJET OPENED!\\n\\n📋 "' + url + '" copied to clipboard!\\n\\n👉 PASTE IT (Ctrl+V or Cmd+V) in the Scramjet search bar and press Enter!');
+    alert('✅ HELIOS OPENED!\\n\\n📋 "' + url + '" copied to clipboard!\\n\\n👉 PASTE IT (Ctrl+V or Cmd+V) in the Helios search bar and press Enter!');
   }).catch(() => {
-    // If clipboard fails, still open Scramjet
-    window.open('https://scramjet-proxy.onrender.com', '_blank');
-    alert('🚀 SCRAMJET OPENED!\\n\\n✍️ Type this URL: ' + url + '\\n\\nPaste it in the search bar and press Enter!');
+    // If clipboard fails, still open Helios
+    window.open(HELIOS_URL, '_blank');
+    alert('🚀 HELIOS OPENED!\\n\\n✍️ Type this URL: ' + url + '\\n\\nPaste it in the search bar and press Enter!');
   });
 }
 
