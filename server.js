@@ -131,7 +131,6 @@ h1{font-size:48px;margin-bottom:15px;background:linear-gradient(90deg,#fff 0%,#f
   box-shadow:0 0 30px rgba(255,255,255,0.1);
   backdrop-filter:blur(10px);
   animation:fadeIn 2s ease-in-out;
-  border:none;
   cursor:pointer;
 }
 .enter-proxy-btn:hover{
@@ -143,37 +142,6 @@ h1{font-size:48px;margin-bottom:15px;background:linear-gradient(90deg,#fff 0%,#f
 @keyframes fadeIn{
   0%{opacity:0;transform:translateY(20px);}
   100%{opacity:1;transform:translateY(0);}
-}
-#proxyContainer{
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100vh;
-  background:#000;
-  z-index:9999;
-}
-#proxyFrame{
-  width:100%;
-  height:calc(100vh - 60px);
-  margin-top:60px;
-}
-.exit-btn{
-  position:fixed;
-  top:10px;
-  left:10px;
-  padding:12px 24px;
-  background:rgba(255,0,0,0.3);
-  border:1px solid rgba(255,0,0,0.5);
-  border-radius:8px;
-  color:#fff;
-  font-weight:700;
-  cursor:pointer;
-  z-index:10000;
-  font-size:14px;
-}
-.exit-btn:hover{
-  background:rgba(255,0,0,0.5);
 }
 </style>
 </head>
@@ -187,11 +155,6 @@ h1{font-size:48px;margin-bottom:15px;background:linear-gradient(90deg,#fff 0%,#f
 <button onclick="enterProxy()" class="enter-proxy-btn">
   ENTER PROXY
 </button>
-
-<div id="proxyContainer" style="display:none;">
-  <button onclick="exitProxy()" class="exit-btn">← BACK TO GATEWAY</button>
-  <iframe id="proxyFrame" src="" frameborder="0"></iframe>
-</div>
 
 <div class="note">
   <strong>💡 How to use:</strong><br>
@@ -211,15 +174,7 @@ let disguised = true;
 const NAUTILUS_URL = '${NAUTILUS_URL}';
 
 function enterProxy() {
-  document.querySelector('.container').style.display = 'none';
-  document.getElementById('proxyContainer').style.display = 'block';
-  document.getElementById('proxyFrame').src = NAUTILUS_URL;
-}
-
-function exitProxy() {
-  document.querySelector('.container').style.display = 'block';
-  document.getElementById('proxyContainer').style.display = 'none';
-  document.getElementById('proxyFrame').src = '';
+  window.open(NAUTILUS_URL, '_blank');
 }
 
 function toggleDisguise() {
