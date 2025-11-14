@@ -1,11 +1,17 @@
-const express = require('express');
+.quick-access{margin-top:30px;padding:25px;background:rgba(0,150,255,0.1);border:1px solid rgba(0,150,255,0.3);border-radius:12px;}
+.quick-title{font-size:18px;font-weight:700;color:#0096ff;margin-bottom:15px;}
+.quick-input{width:100%;padding:15px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.2);border-radius:8px;color:#fff;font-size:14px;margin-bottom:10px;}
+.quick-input::placeholder{color:rgba(255,255,255,0.4);}
+.quick-btn{padding:12px 30px;background:#00ff99;color:#000;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:14px;}
+.quick-btn:hover{opacity:0.9;}const express = require('express');
 const session = require('express-session');
 const MemoryStore = require('memorystore')(session);
 const app = express();
 
 const PORT = process.env.PORT || 3000;
 const ACCESS_CODE = process.env.PROXY_PASSWORD || 'rainbow123';
-const HELIOS_URL = 'https://helios-proxy.onrender.com';
+// UPDATE THIS URL after deploying NautilusOS as a Static Site on Render
+const NAUTILUS_URL = process.env.NAUTILUS_URL || 'https://nautilusos-8uzw.onrender.com';
 
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
@@ -114,13 +120,33 @@ h1{font-size:48px;margin-bottom:15px;background:linear-gradient(90deg,#fff 0%,#f
 .logout:hover{background:rgba(255,0,0,0.5);}
 .disguise-btn{position:fixed;top:20px;left:20px;padding:10px 20px;background:rgba(0,255,153,0.3);border:1px solid rgba(0,255,153,0.5);border-radius:8px;font-size:12px;color:#00ff99;border:none;cursor:pointer;}
 .disguise-btn:hover{background:rgba(0,255,153,0.5);}
-.proxy-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px;margin-top:30px;}
-.proxy-card{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.2);border-radius:12px;padding:25px;cursor:pointer;transition:all 0.3s;text-decoration:none;color:#fff;display:block;}
-.proxy-card:hover{transform:translateY(-5px);border-color:rgba(255,255,255,0.5);background:rgba(255,255,255,0.1);}
-.proxy-icon{font-size:40px;margin-bottom:15px;}
-.proxy-name{font-size:20px;font-weight:700;margin-bottom:8px;}
-.proxy-desc{font-size:13px;color:rgba(255,255,255,0.6);line-height:1.4;}
-.proxy-tag{display:inline-block;margin-top:10px;padding:4px 10px;background:rgba(0,255,153,0.2);border:1px solid rgba(0,255,153,0.4);border-radius:4px;font-size:11px;color:#00ff99;}
+.enter-proxy-btn{
+  display:inline-block;
+  padding:25px 60px;
+  background:linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.3) 100%);
+  border:2px solid rgba(255,255,255,0.4);
+  border-radius:16px;
+  color:#fff;
+  font-size:24px;
+  font-weight:700;
+  text-decoration:none;
+  letter-spacing:2px;
+  margin-top:50px;
+  transition:all 0.5s ease;
+  box-shadow:0 0 30px rgba(255,255,255,0.1);
+  backdrop-filter:blur(10px);
+  animation:fadeIn 2s ease-in-out;
+}
+.enter-proxy-btn:hover{
+  background:linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.5) 100%);
+  border-color:rgba(255,255,255,0.8);
+  box-shadow:0 0 50px rgba(255,255,255,0.3);
+  transform:translateY(-5px);
+}
+@keyframes fadeIn{
+  0%{opacity:0;transform:translateY(20px);}
+  100%{opacity:1;transform:translateY(0);}
+}
 .note{margin-top:40px;padding:20px;background:rgba(255,255,0,0.1);border:1px solid rgba(255,255,0,0.3);border-radius:8px;font-size:13px;color:rgba(255,255,0,0.8);line-height:1.6;}
 .quick-access{margin-top:30px;padding:25px;background:rgba(0,150,255,0.1);border:1px solid rgba(0,150,255,0.3);border-radius:12px;}
 .quick-title{font-size:18px;font-weight:700;color:#0096ff;margin-bottom:15px;}
@@ -135,89 +161,28 @@ h1{font-size:48px;margin-bottom:15px;background:linear-gradient(90deg,#fff 0%,#f
 <a href="/logout" class="logout">🔒 Logout</a>
 <div class="container">
 <h1>🌈 RAINBOW GATEWAY</h1>
-<div class="subtitle">Your Protected Access Point - Full Social Media Access!</div>
+<div class="subtitle">Your Protected Access Point - Powered by NautilusOS!</div>
 
-<div class="quick-access">
-  <div class="quick-title">⚡ Quick Access - Type Any Website</div>
-  <input type="text" id="quickUrl" class="quick-input" placeholder="Enter website (e.g., tiktok.com, youtube.com, discord.com)" />
-  <button class="quick-btn" onclick="quickGo()">GO 🚀</button>
-</div>
-
-<div class="proxy-grid">
-  <a href="${HELIOS_URL}" target="_blank" class="proxy-card">
-    <div class="proxy-icon">🚀</div>
-    <div class="proxy-name">Launch Helios</div>
-    <div class="proxy-desc">Click here to open Helios proxy. Then type any website!</div>
-    <span class="proxy-tag">FULL ACCESS</span>
-  </a>
-
-  <a href="#" onclick="openSite('https://www.tiktok.com'); return false;" class="proxy-card">
-    <div class="proxy-icon">🎵</div>
-    <div class="proxy-name">TikTok</div>
-    <div class="proxy-desc">Opens Helios and auto-copies TikTok URL for instant access!</div>
-    <span class="proxy-tag">AUTO-PASTE</span>
-  </a>
-
-  <a href="#" onclick="openSite('https://www.snapchat.com'); return false;" class="proxy-card">
-    <div class="proxy-icon">👻</div>
-    <div class="proxy-name">Snapchat</div>
-    <div class="proxy-desc">Opens Helios and auto-copies Snapchat URL. Just paste!</div>
-    <span class="proxy-tag">AUTO-PASTE</span>
-  </a>
-
-  <a href="#" onclick="openSite('https://www.instagram.com'); return false;" class="proxy-card">
-    <div class="proxy-icon">📸</div>
-    <div class="proxy-name">Instagram</div>
-    <div class="proxy-desc">Opens Helios and auto-copies Instagram URL. Just paste!</div>
-    <span class="proxy-tag">AUTO-PASTE</span>
-  </a>
-
-  <a href="#" onclick="openSite('https://www.youtube.com'); return false;" class="proxy-card">
-    <div class="proxy-icon">▶️</div>
-    <div class="proxy-name">YouTube</div>
-    <div class="proxy-desc">Opens Helios and auto-copies YouTube URL. Just paste!</div>
-    <span class="proxy-tag">AUTO-PASTE</span>
-  </a>
-
-  <a href="#" onclick="openSite('https://discord.com'); return false;" class="proxy-card">
-    <div class="proxy-icon">💬</div>
-    <div class="proxy-name">Discord</div>
-    <div class="proxy-desc">Opens Helios and auto-copies Discord URL. Just paste!</div>
-    <span class="proxy-tag">AUTO-PASTE</span>
-  </a>
-
-  <a href="#" onclick="openSite('https://www.reddit.com'); return false;" class="proxy-card">
-    <div class="proxy-icon">🤖</div>
-    <div class="proxy-name">Reddit</div>
-    <div class="proxy-desc">Opens Helios and auto-copies Reddit URL. Just paste!</div>
-    <span class="proxy-tag">AUTO-PASTE</span>
-  </a>
-
-  <a href="#" onclick="openSite('https://twitter.com'); return false;" class="proxy-card">
-    <div class="proxy-icon">🐦</div>
-    <div class="proxy-name">Twitter / X</div>
-    <div class="proxy-desc">Opens Helios and auto-copies Twitter URL. Just paste!</div>
-    <span class="proxy-tag">AUTO-PASTE</span>
-  </a>
-</div>
+<a href="${NAUTILUS_URL}" target="_blank" class="enter-proxy-btn">
+  ENTER PROXY
+</a>
 
 <div class="note">
   <strong>💡 How to use:</strong><br>
-  1. Click any site button below (e.g., TikTok, YouTube)<br>
-  2. Helios opens + URL is auto-copied to your clipboard!<br>
-  3. Just press Ctrl+V (or Cmd+V on Mac) to paste in the search bar<br>
-  4. Hit Enter and you're in! Login with your real accounts!<br>
+  1. Click any site button (e.g., TikTok, YouTube) to open it directly<br>
+  2. Or click "Launch NautilusOS" for the full web OS experience<br>
+  3. NautilusOS includes: Browser, Games, Apps, File Manager & more!<br>
+  4. Login with your real accounts - everything works!<br>
   <br>
   <strong>🎭 Tab Disguise:</strong> Shows "Clever | Portal" so teachers think you're on Clever<br>
   <strong>🔒 Privacy:</strong> Your school only sees you visiting Rainbow Gateway!<br>
   <br>
-  <strong>⚡ Pro Tip:</strong> First load is slow (15-20 seconds), but then it's super fast!
+  <strong>⚡ Pro Tip:</strong> First load may take a moment, but then it's super fast!
 </div>
 </div>
 
 <script>
 let disguised = true;
-const HELIOS_URL = '${HELIOS_URL}';
 
 function toggleDisguise() {
   disguised = !disguised;
@@ -238,27 +203,6 @@ function toggleDisguise() {
   }
 }
 
-function openSite(url) {
-  navigator.clipboard.writeText(url).then(() => {
-    window.open(HELIOS_URL, '_blank');
-    alert('✅ HELIOS OPENED!\\n\\n📋 "' + url + '" copied to clipboard!\\n\\n👉 PASTE IT (Ctrl+V or Cmd+V) in the Helios search bar and press Enter!');
-  }).catch(() => {
-    window.open(HELIOS_URL, '_blank');
-    alert('🚀 HELIOS OPENED!\\n\\n✍️ Type this URL: ' + url + '\\n\\nPaste it in the search bar and press Enter!');
-  });
-}
-
-function quickGo() {
-  let url = document.getElementById('quickUrl').value.trim();
-  if (!url) return;
-  
-  if (!url.startsWith('http://') && !url.startsWith('https://')) {
-    url = 'https://' + url;
-  }
-  
-  openSite(url);
-}
-
 document.addEventListener('visibilitychange', function() {
   if (document.hidden && !disguised) {
     disguised = true;
@@ -270,10 +214,6 @@ document.addEventListener('visibilitychange', function() {
     btn.style.color = '#00ff99';
   }
 });
-
-document.getElementById('quickUrl').addEventListener('keypress', function(e) {
-  if (e.key === 'Enter') quickGo();
-});
 </script>
 </body>
 </html>`);
@@ -282,5 +222,5 @@ document.getElementById('quickUrl').addEventListener('keypress', function(e) {
 app.listen(PORT, () => {
   console.log(`🌈 Rainbow Gateway running on port ${PORT}`);
   console.log(`🔒 Password: ${ACCESS_CODE}`);
-  console.log(`🚀 Helios Proxy: ${HELIOS_URL}`);
+  console.log(`🚀 NautilusOS: ${NAUTILUS_URL}`);
 });
