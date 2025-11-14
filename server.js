@@ -1,9 +1,4 @@
-.quick-access{margin-top:30px;padding:25px;background:rgba(0,150,255,0.1);border:1px solid rgba(0,150,255,0.3);border-radius:12px;}
-.quick-title{font-size:18px;font-weight:700;color:#0096ff;margin-bottom:15px;}
-.quick-input{width:100%;padding:15px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.2);border-radius:8px;color:#fff;font-size:14px;margin-bottom:10px;}
-.quick-input::placeholder{color:rgba(255,255,255,0.4);}
-.quick-btn{padding:12px 30px;background:#00ff99;color:#000;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:14px;}
-.quick-btn:hover{opacity:0.9;}const express = require('express');
+const express = require('express');
 const session = require('express-session');
 const MemoryStore = require('memorystore')(session);
 const app = express();
@@ -120,33 +115,13 @@ h1{font-size:48px;margin-bottom:15px;background:linear-gradient(90deg,#fff 0%,#f
 .logout:hover{background:rgba(255,0,0,0.5);}
 .disguise-btn{position:fixed;top:20px;left:20px;padding:10px 20px;background:rgba(0,255,153,0.3);border:1px solid rgba(0,255,153,0.5);border-radius:8px;font-size:12px;color:#00ff99;border:none;cursor:pointer;}
 .disguise-btn:hover{background:rgba(0,255,153,0.5);}
-.enter-proxy-btn{
-  display:inline-block;
-  padding:25px 60px;
-  background:linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.3) 100%);
-  border:2px solid rgba(255,255,255,0.4);
-  border-radius:16px;
-  color:#fff;
-  font-size:24px;
-  font-weight:700;
-  text-decoration:none;
-  letter-spacing:2px;
-  margin-top:50px;
-  transition:all 0.5s ease;
-  box-shadow:0 0 30px rgba(255,255,255,0.1);
-  backdrop-filter:blur(10px);
-  animation:fadeIn 2s ease-in-out;
-}
-.enter-proxy-btn:hover{
-  background:linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.5) 100%);
-  border-color:rgba(255,255,255,0.8);
-  box-shadow:0 0 50px rgba(255,255,255,0.3);
-  transform:translateY(-5px);
-}
-@keyframes fadeIn{
-  0%{opacity:0;transform:translateY(20px);}
-  100%{opacity:1;transform:translateY(0);}
-}
+.proxy-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px;margin-top:30px;}
+.proxy-card{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.2);border-radius:12px;padding:25px;cursor:pointer;transition:all 0.3s;text-decoration:none;color:#fff;display:block;}
+.proxy-card:hover{transform:translateY(-5px);border-color:rgba(255,255,255,0.5);background:rgba(255,255,255,0.1);}
+.proxy-icon{font-size:40px;margin-bottom:15px;}
+.proxy-name{font-size:20px;font-weight:700;margin-bottom:8px;}
+.proxy-desc{font-size:13px;color:rgba(255,255,255,0.6);line-height:1.4;}
+.proxy-tag{display:inline-block;margin-top:10px;padding:4px 10px;background:rgba(0,255,153,0.2);border:1px solid rgba(0,255,153,0.4);border-radius:4px;font-size:11px;color:#00ff99;}
 .note{margin-top:40px;padding:20px;background:rgba(255,255,0,0.1);border:1px solid rgba(255,255,0,0.3);border-radius:8px;font-size:13px;color:rgba(255,255,0,0.8);line-height:1.6;}
 .quick-access{margin-top:30px;padding:25px;background:rgba(0,150,255,0.1);border:1px solid rgba(0,150,255,0.3);border-radius:12px;}
 .quick-title{font-size:18px;font-weight:700;color:#0096ff;margin-bottom:15px;}
@@ -183,6 +158,7 @@ h1{font-size:48px;margin-bottom:15px;background:linear-gradient(90deg,#fff 0%,#f
 
 <script>
 let disguised = true;
+const NAUTILUS_URL = '${NAUTILUS_URL}';
 
 function toggleDisguise() {
   disguised = !disguised;
@@ -203,6 +179,23 @@ function toggleDisguise() {
   }
 }
 
+function openSite(url) {
+  const nautilusUrl = NAUTILUS_URL + '/?url=' + encodeURIComponent(url);
+  window.open(nautilusUrl, '_blank');
+  alert('✅ NAUTILUSOS OPENED!\\n\\n🌐 Loading: ' + url + '\\n\\nThe site will open automatically in the NautilusOS browser!');
+}
+
+function quickGo() {
+  let url = document.getElementById('quickUrl').value.trim();
+  if (!url) return;
+  
+  if (!url.startsWith('http://') && !url.startsWith('https://')) {
+    url = 'https://' + url;
+  }
+  
+  openSite(url);
+}
+
 document.addEventListener('visibilitychange', function() {
   if (document.hidden && !disguised) {
     disguised = true;
@@ -213,6 +206,10 @@ document.addEventListener('visibilitychange', function() {
     btn.style.background = 'rgba(0,255,153,0.3)';
     btn.style.color = '#00ff99';
   }
+});
+
+document.getElementById('quickUrl').addEventListener('keypress', function(e) {
+  if (e.key === 'Enter') quickGo();
 });
 </script>
 </body>
