@@ -5,6 +5,7 @@ const app = express();
 
 const PORT = process.env.PORT || 3000;
 const ACCESS_CODE = process.env.PROXY_PASSWORD || 'rainbow123';
+const HELIOS_URL = 'https://helios-proxy.onrender.com';
 
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
@@ -143,10 +144,10 @@ h1{font-size:48px;margin-bottom:15px;background:linear-gradient(90deg,#fff 0%,#f
 </div>
 
 <div class="proxy-grid">
-  <a href="https://your-helios-app.onrender.com" target="_blank" class="proxy-card">
+  <a href="${HELIOS_URL}" target="_blank" class="proxy-card">
     <div class="proxy-icon">🚀</div>
     <div class="proxy-name">Launch Helios</div>
-    <div class="proxy-desc">Click here to open the Helios proxy. Then type any website you want to visit!</div>
+    <div class="proxy-desc">Click here to open Helios proxy. Then type any website!</div>
     <span class="proxy-tag">FULL ACCESS</span>
   </a>
 
@@ -216,7 +217,7 @@ h1{font-size:48px;margin-bottom:15px;background:linear-gradient(90deg,#fff 0%,#f
 
 <script>
 let disguised = true;
-const HELIOS_URL = 'https://your-helios-app.onrender.com';
+const HELIOS_URL = '${HELIOS_URL}';
 
 function toggleDisguise() {
   disguised = !disguised;
@@ -238,15 +239,10 @@ function toggleDisguise() {
 }
 
 function openSite(url) {
-  // Copy URL to clipboard
   navigator.clipboard.writeText(url).then(() => {
-    // Open Helios in new tab
     window.open(HELIOS_URL, '_blank');
-    
-    // Show helpful message
     alert('✅ HELIOS OPENED!\\n\\n📋 "' + url + '" copied to clipboard!\\n\\n👉 PASTE IT (Ctrl+V or Cmd+V) in the Helios search bar and press Enter!');
   }).catch(() => {
-    // If clipboard fails, still open Helios
     window.open(HELIOS_URL, '_blank');
     alert('🚀 HELIOS OPENED!\\n\\n✍️ Type this URL: ' + url + '\\n\\nPaste it in the search bar and press Enter!');
   });
@@ -256,7 +252,6 @@ function quickGo() {
   let url = document.getElementById('quickUrl').value.trim();
   if (!url) return;
   
-  // Add https:// if not present
   if (!url.startsWith('http://') && !url.startsWith('https://')) {
     url = 'https://' + url;
   }
@@ -264,7 +259,6 @@ function quickGo() {
   openSite(url);
 }
 
-// Auto-disguise when tab loses focus
 document.addEventListener('visibilitychange', function() {
   if (document.hidden && !disguised) {
     disguised = true;
@@ -277,7 +271,6 @@ document.addEventListener('visibilitychange', function() {
   }
 });
 
-// Allow Enter key in quick access
 document.getElementById('quickUrl').addEventListener('keypress', function(e) {
   if (e.key === 'Enter') quickGo();
 });
@@ -289,4 +282,5 @@ document.getElementById('quickUrl').addEventListener('keypress', function(e) {
 app.listen(PORT, () => {
   console.log(`🌈 Rainbow Gateway running on port ${PORT}`);
   console.log(`🔒 Password: ${ACCESS_CODE}`);
+  console.log(`🚀 Helios Proxy: ${HELIOS_URL}`);
 });
